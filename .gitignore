@@ -1,0 +1,4 @@
+*~
+presentation/*
+!presentation/Makefile
+!presentation/ldsForNeuro.tex
