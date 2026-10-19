@@ -111,10 +111,6 @@ def main(argv):
     parser.add_argument(
         "--max_speed", type=float,
         help="maximum speed to consider for plotting", default=548.0)
-    parser.add_argument(
-        "--output_video_filename_pattern", type=str,
-        help="filename pattern for the output video",
-        default="../../videos/{:s}")
     args = parser.parse_args()
 
     start_time = args.start_time
@@ -138,12 +134,9 @@ def main(argv):
     centroid_color = ast.literal_eval(args.centroid_color)
     filtered_color = ast.literal_eval(args.filtered_color)
     max_speed = args.max_speed
-    output_video_filename_pattern = args.output_video_filename_pattern
 
     frames_for_background = list(map(int, frames_for_background_str[1:-1].split(', ')))
     video_filename_proper = os.path.basename(video_filename)
-    output_video_filename = output_video_filename_pattern.format(
-        video_filename_proper)
 
     # get video
     cap = cv2.VideoCapture(video_filename)
@@ -159,14 +152,6 @@ def main(argv):
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     size = (frame_width, frame_height)
-
-    output_video_dirname = os.path.dirname(output_video_filename)
-    if not os.path.exists(output_video_dirname):
-        print(f"Creating directory {output_video_dirname}")
-        os.mkdir(output_video_dirname)
-    writer = cv2.VideoWriter(output_video_filename,
-                             cv2.VideoWriter_fourcc(*'MJPG'),
-                             fps, size)
 
     # get LDS matrices for kinematics
     dt = 1.0 / fps
@@ -185,19 +170,9 @@ def main(argv):
         frame_indices=frames_for_background)
     background = cv2.resize(background, (int(frame_width/video_zoom_out_factor),
                                          int(frame_height/video_zoom_out_factor)))
-    # cv2.imshow("", background)
-    # if cv2.waitKey(0) & 0xFF == ord('q'):
-    #     return
-
-    # breakpoint()
 
     # seek start frame
     start_frame = start_time * fps
-    # current_frame = 0
-    # ret = True
-    # while current_frame < start_frame and ret:
-    #     ret, _ = cap.read()
-    #     current_frame += 1
     cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame-1)
 
     while cap.isOpened():
@@ -249,15 +224,11 @@ def main(argv):
                     fontScale=annotation_font_scale, color=annotation_color)
         #
 
-        # save frame
-        writer.write(frame)
-
         cv2.imshow("", frame)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
     cap.release()
-    writer.release()
     cv2.destroyAllWindows()
 
 
