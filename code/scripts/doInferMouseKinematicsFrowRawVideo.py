@@ -59,7 +59,8 @@ def main(argv):
         "--video_filename", type=str, help="video filename",
         # default="/ceph/aeon/aeon/data/raw/AEON2/experiment0.2/2022-08-15T14-08-23/CameraTop/CameraTop_2022-08-15T13-00-00.avi")
         # default="../../data/FrameTop_2021-06-03T17-00-00_end001000.avi")
-        default="../../data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
+        # default="../../data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
+        default="http://www.gatsby.ucl.ac.uk/~rapela/itba2026/data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
     parser.add_argument(
         "--pixel_thr_value", type=int,
         help="threshold value for pixels", default=50)
@@ -136,7 +137,6 @@ def main(argv):
     max_speed = args.max_speed
 
     frames_for_background = list(map(int, frames_for_background_str[1:-1].split(', ')))
-    video_filename_proper = os.path.basename(video_filename)
 
     # get video
     cap = cv2.VideoCapture(video_filename)
