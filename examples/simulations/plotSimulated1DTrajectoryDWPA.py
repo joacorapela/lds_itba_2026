@@ -15,9 +15,6 @@ model.
 import numpy as np
 import plotly.graph_objs as go
 
-import ssm.kinematics.utils
-import ssm.simulation
-
 
 #%%
 # Set hyperparameters
