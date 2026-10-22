@@ -54,8 +54,6 @@ V0 = np.diag(np.ones(len(m0))*sqrt_diag_V0_value**2)
 
 M = B.shape[0]
 N = Z.shape[0]
-u = np.zeros(shape=(M, 1))
-a = np.zeros(shape=(N, 1))
 
 # state noise
 w = np.random.multivariate_normal(np.zeros(M), Q, num_pos).T
@@ -66,10 +64,10 @@ x0 = np.random.multivariate_normal(m0, V0, 1).flatten()
 # sample
 x = np.empty(shape=(M, num_pos))
 y = np.empty(shape=(N, num_pos))
-x[:, 0] = np.squeeze(u) + B @ x0 + w[:, 0]
+x[:, 0] = B @ x0 + w[:, 0]
 for n in range(1, num_pos):
-    x[:, n] = np.squeeze(u) + B @ x[:, n-1] + w[:, n]
-y = np.squeeze(a) + Z @ x + v
+    x[:, n] = B @ x[:, n-1] + w[:, n]
+y = Z @ x + v
 t = np.arange(num_pos) * dt
 
 #%%
