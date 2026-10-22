@@ -6,3 +6,9 @@ presentation/*
 !presentation/Makefile
 !presentation/ldsForNeuro.tex
 data/*
+
+docs/sphinx/*
+!docs/sphinx/source/
+docs/sphinx/source/*
+!docs/sphinx/source/conf.py
+!docs/sphinx/source/index.rst
