@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+plotly
+kaleido
+pandas
+ssm @ git+https://github.com/joacorapela/ssm.git
