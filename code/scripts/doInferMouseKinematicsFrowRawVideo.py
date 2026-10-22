@@ -57,9 +57,9 @@ def main(argv):
         default=2.0)
     parser.add_argument(
         "--video_filename", type=str, help="video filename",
-        # default="/ceph/aeon/aeon/data/raw/AEON2/experiment0.2/2022-08-15T14-08-23/CameraTop/CameraTop_2022-08-15T13-00-00.avi")
-        # default="../../data/FrameTop_2021-06-03T17-00-00_end001000.avi")
-        # default="../../data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
+        default="../../data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
+    parser.add_argument(
+        "--video_url", type=str, help="video url",
         default="http://www.gatsby.ucl.ac.uk/~rapela/itba2026/data/FrameTop_2021-06-03T17-00-00_ss_00-02-40_to_00-04-10.avi")
     parser.add_argument(
         "--pixel_thr_value", type=int,
@@ -119,6 +119,7 @@ def main(argv):
 
     video_zoom_out_factor = args.video_zoom_out_factor
     video_filename = args.video_filename
+    video_url = args.video_url
     pixel_thr_value = args.pixel_thr_value
     pixel_max_value = args.pixel_max_value
     max_contour_area = args.max_contour_area
@@ -139,7 +140,13 @@ def main(argv):
     frames_for_background = list(map(int, frames_for_background_str[1:-1].split(', ')))
 
     # get video
-    cap = cv2.VideoCapture(video_filename)
+    if os.path.exists(video_filename):
+        print(f"Processing {video_filename}")
+        cap = cv2.VideoCapture(video_filename)
+    else:
+        print(f"Processing {video_url}")
+        cap = cv2.VideoCapture(video_url)
+
     if not cap.isOpened():
         raise RuntimeError(f"Error: {video_filename} could not be opened")
     (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
