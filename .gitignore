@@ -6,6 +6,7 @@ presentation/*
 !presentation/Makefile
 !presentation/ldsForNeuro.tex
 data/*
+.ipynb_checkpoints
 
 docs/sphinx/*
 !docs/sphinx/source/
