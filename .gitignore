@@ -5,6 +5,7 @@ __pycache__/
 presentation/*
 !presentation/Makefile
 !presentation/ldsForNeuro.tex
+!presentation/ldsForNeuro_content.tex
 data/*
 .ipynb_checkpoints
 
