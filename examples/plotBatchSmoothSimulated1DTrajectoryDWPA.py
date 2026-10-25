@@ -1,10 +1,9 @@
 
 """
-Offline smoothing of a simulated mouse 1D trajectory
-====================================================
+Offline smoothing of a simulated 1D trajectory
+==============================================
 
-The code below performs online Kalman filtering of a simulated mouse
-trajectory.
+The code below performs offline Kalman smoothing of a simulated 1D trajectory.
 
 """
 
@@ -96,59 +95,24 @@ innov = np.empty(shape=[P, 1, N])
 Sn = np.empty(shape=[P, P, N])
 K = np.empty(shape=[M, P, N])
 
-log_like = 0.0
-valid_obs_count = 0
-
-# k == 0
-xnn1[:, 0, 0] = B @ m0
-Pnn1[:, :, 0] = B @ V0 @ B.T + Q
-
-if np.any(np.isnan(y[:, 0])):
-    xnn[:, :, 0] = xnn1[:, :, 0]
-    Pnn[:, :, 0] = Pnn1[:, :, 0]
-    innov[:, :, 0] = np.nan
-    Sn[:, :, 0] = np.nan
-    K[:, :, 0] = np.nan
-else:
-    Stmp = Z @ Pnn1[:, :, 0] @ Z.T + R
-    Sn[:, :, 0] = (Stmp + Stmp.T) / 2
-    Sinv = np.linalg.inv(Sn[:, :, 0])
-    K[:, :, 0] = Pnn1[:, :, 0] @ Z.T @ Sinv
-    pred_obs = Z @ xnn1[:, :, 0]
-    innov[:, 0, 0] = y[:, 0] - pred_obs[:, 0]
-    xnn[:, :, 0] = xnn1[:, :, 0] + K[:, :, 0] @ innov[:, :, 0]
-    Pnn[:, :, 0] = Pnn1[:, :, 0] - K[:, :, 0] @ Z @ Pnn1[:, :, 0]
-
-    log_like -= (np.linalg.slogdet(Sn[:, :, 0])[1] +
-                 (innov[:, :, 0].T @ Sinv @ innov[:, :, 0]).item())
-    valid_obs_count += P
-
-# k > 0
-for k in range(1, N):
-    xnn1[:, :, k] = B @ xnn[:, :, k-1]
-    Pnn1[:, :, k] = B @ Pnn[:, :, k-1] @ B.T + Q
-    if np.any(np.isnan(y[:, k])):
-        xnn[:, :, k] = xnn1[:, :, k]
-        Pnn[:, :, k] = Pnn1[:, :, k]
-        innov[:, :, k] = np.nan
-        Sn[:, :, k] = np.nan
-        K[:, :, k] = np.nan
+for k in range(N):
+    if k == 0:
+        xnn1[:, 0, 0] = B @ m0
+        Pnn1[:, :, 0] = B @ V0 @ B.T + Q
     else:
-        Stmp = Z @ Pnn1[:, :, k] @ Z.T + R
-        Sn[:, :, k] = (Stmp + Stmp.T) / 2
-        Sinv = np.linalg.inv(Sn[:, :, k])
-        K[:, :, k] = Pnn1[:, :, k] @ Z.T @ Sinv
-        pred_obs = Z @ xnn1[:, :, k]
-        innov[:, :, k] = np.expand_dims(y[:, k],-1) - pred_obs
-        xnn[:, :, k] = xnn1[:, :, k] + K[:, :, k] @ innov[:, :, k]
-        Pnn[:, :, k] = Pnn1[:, :, k] - K[:, :, k] @ Z @ Pnn1[:, :, k]
-        log_like -= (np.linalg.slogdet(Sn[:, :, k])[1] +\
-                     (innov[:, :, k].T @ Sinv @ innov[:, :, k]).item())
-        valid_obs_count += P
+        xnn1[:, :, k] = B @ xnn[:, :, k-1]
+        Pnn1[:, :, k] = B @ Pnn[:, :, k-1] @ B.T + Q
+    Stmp = Z @ Pnn1[:, :, k] @ Z.T + R
+    Sn[:, :, k] = (Stmp + Stmp.T) / 2
+    Sinv = np.linalg.inv(Sn[:, :, k])
+    K[:, :, k] = Pnn1[:, :, k] @ Z.T @ Sinv
+    pred_obs = Z @ xnn1[:, :, k]
+    innov[:, :, k] = y[:, k] - pred_obs[:, 0]
+    xnn[:, :, k] = xnn1[:, :, k] + K[:, :, k] @ innov[:, :, k]
+    Pnn[:, :, k] = Pnn1[:, :, k] - K[:, :, k] @ Z @ Pnn1[:, :, k]
 
-log_like = -0.5 * (valid_obs_count * np.log(2 * np.pi) - log_like)
 filter_res = {"xnn1": xnn1, "Pnn1": Pnn1, "xnn": xnn, "Pnn": Pnn,
-              "innov": innov, "K": K, "Sn": Sn, "log_like": log_like}
+              "innov": innov, "K": K, "Sn": Sn}
 
 #%%
 # Perform batch smoothing

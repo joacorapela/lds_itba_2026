@@ -52,6 +52,9 @@ V0 = np.diag(np.ones(len(m0))*sqrt_diag_V0_value**2)
 # Sample from the LDS
 # ~~~~~~~~~~~~~~~~~~~
 
+# fix random seed
+np.random.seed(seed=1234)
+
 M = B.shape[0]
 N = Z.shape[0]
 

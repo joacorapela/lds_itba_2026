@@ -1,10 +1,9 @@
 
 """
-Offline forecasting of a simulated mouse 1D trajectory
-====================================================
+Offline forecasting of a simulated 1D trajectory
+================================================
 
-The code below performs offline forecasting of a simulated mouse
-trajectory.
+The code below performs offline forecasting of a simulated 1D trajectory.
 
 """
 
@@ -102,9 +101,6 @@ innov = np.empty(shape=[P, 1, N])
 Sn = np.empty(shape=[P, P, N])
 K = np.empty(shape=[M, P, N])
 
-log_like = 0.0
-valid_obs_count = 0
-
 for k in range(N):
     if k == 0:
         xnn1[:, 0, 0] = B @ m0
@@ -127,13 +123,9 @@ for k in range(N):
         innov[:, 0, k] = y[:, k] - pred_obs[:, 0]
         xnn[:, :, k] = xnn1[:, :, k] + K[:, :, k] @ innov[:, :, k]
         Pnn[:, :, k] = Pnn1[:, :, k] - K[:, :, k] @ Z @ Pnn1[:, :, k]
-        log_like -= (np.linalg.slogdet(Sn[:, :, k])[1] +\
-                     (innov[:, :, k].T @ Sinv @ innov[:, :, k]).item())
-        valid_obs_count += P
 
-log_like = -0.5 * (valid_obs_count * np.log(2 * np.pi) - log_like)
 filter_res = {"xnn1": xnn1, "Pnn1": Pnn1, "xnn": xnn, "Pnn": Pnn,
-              "innov": innov, "K": K, "Sn": Sn, "log_like": log_like}
+              "innov": innov, "K": K, "Sn": Sn}
 
 #%%
 # Perform batch smoothing
