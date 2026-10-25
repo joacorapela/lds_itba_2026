@@ -8,7 +8,7 @@ from plotly.io._sg_scraper import plotly_sg_scraper
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Supporting code for LDS for Neuro lecture at ITBA 2026'
+project = 'Supporting code for the LDS for Neuro lecture at ITBA 2026'
 copyright = '2026, Joaquin Rapela'
 author = 'Joaquin Rapela'
 
