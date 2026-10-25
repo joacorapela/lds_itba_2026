@@ -504,32 +504,29 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
 }
 
 \section{Inference}
-
-\begin{frame}
-    \frametitle{Inference in LDSs}
-
-\begin{description}
-    \item[Prediction]
-        \begin{align}
-            P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})=N(\mathbf{x}_n|\mathbf{x}_{n|n-1},P_{n|n-1})\nonumber
-        \end{align}
-    \item[Filtering]
-        \begin{align}
-            P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n})=N(\mathbf{x}_n|\mathbf{x}_{n|n},P_{n|n})\nonumber
-        \end{align}
-    \item[Smoothing]
-        \begin{align}
-            P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{N})=N(\mathbf{x}_n|\mathbf{x}_{n|N},P_{n|N})\nonumber
-        \end{align}
-    \item[Forecasting]
-        \begin{align}
-            P(\mathbf{x}_{n+h}|\mathbf{y}_1,\ldots,\mathbf{y}_{n})=N(\mathbf{x}_n|\mathbf{x}_{n+h|n},P_{n+h|n})\nonumber
-        \end{align}
-\end{description}
-
-    \onslide<2->\textcolor{red}{{These conditional probabilities are Normal
-    because $\{x_0, x_n, y_n\}_{n=1}^N$ are jointly normal.}}
-
+\begin{frame}{Inference in LDSs}
+  % \small
+  \setlength{\jot}{-2pt} % Tighten any internal math spacing
+  \begin{description}[Missing observations]
+    \item[Prediction] 
+      $P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})=\mathcal{N}(\mathbf{x}_n|\mathbf{x}_{n|n-1},P_{n|n-1})$
+      
+    \item[Filtering] 
+      $P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n})=\mathcal{N}(\mathbf{x}_n|\mathbf{x}_{n|n},P_{n|n})$
+      
+    \item[Smoothing] 
+      $P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{N})=\mathcal{N}(\mathbf{x}_n|\mathbf{x}_{n|N},P_{n|N})$
+      
+    \item[Forecasting] 
+      $P(\mathbf{x}_{n+h}|\mathbf{y}_1,\ldots,\mathbf{y}_{n})=\mathcal{N}(\mathbf{x}_{n+h}|\mathbf{x}_{n+h|n},P_{n+h|n})$
+      
+    \item[Missing obs.] 
+      $P(\mathbf{x}_{n} \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_{m+h+1}, \ldots, \mathbf{y}_n) = \mathcal{N}(\mathbf{x}_{n} \mid \mathbf{x}_{n \mid \text{gap}}, P_{n \mid \text{gap}})$
+  \end{description}
+  
+  \vspace{0.4em}
+  \centering
+  \onslide<2->{\footnotesize\textcolor{red}{These conditional probabilities are Normal because $\{\mathbf{x}_0, \mathbf{x}_n, \mathbf{y}_n\}_{n=1}^N$ are jointly normal.}}
 \end{frame}
 
 \note[itemize] {
@@ -765,27 +762,91 @@ The Kalman smoother algorithm estimates the smoothed means and
 
 \subsection{Forecasting}
 
-\begin{frame}
-    \frametitle{Forecasting}
+\begin{frame}                                                                                   
+    \frametitle{Forecasting}                                                                     
+                                                                                                 
+    \begin{align*}                                                                               
+        P(\mathbf{x}_{n+h}|\mathbf{y}_1,\ldots,\mathbf{y}_{n})&=\mathcal{N}(\mathbf{x}_{n+h}|\mathbf{x}_{n+h|n},P_{n+h|n})\\
+        \mathbf{x}_{n+h|n}&=A\ \mathbf{x}_{n+h-1|n}\\                                             
+        P_{n+h|n}&=A\ P_{n+h-1|n}A^\intercal+Q\\                                                  
+    \end{align*}                                                                                 
+                                                                                                 
+    Notes:                                                                                       
+                                                                                                 
+\begin{enumerate}                                                                               
+                                                                                                 
+	\item These forecasting equations can be implemented using a standard
+Kalman filter by omitting measurement updates for unobserved time steps (i.e.,
+setting the filtered estimates to their predicted values: $\mathbf{x}_{m|m} =
+\mathbf{x}_{m|m-1}$ and $P_{m|m} = P_{m|m-1}$).  
+    
+\end{enumerate}
+\end{frame}
 
+\begin{frame}[fragile]
+    \frametitle{Practical: Forecasting}
+
+    \begin{columns}[T]
+        % Left Column: Practical Instructions & Colab Link
+        \column{0.45\textwidth}
+        \textbf{Instructions:}
+        
+        \small Forecast positions, velocities and accelerations with a horizon
+        of 100~ms.
+
+        \vspace{2em}
+        \centering
+        \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/exercises/plotBatchForecastSimul1DTrajectoryDWPA.ipynb}{
+            \beamerbutton{\faCode\ Open in Google Colab}
+        }
+
+        % Right Column: Clean Vertically Stacked Plots
+        \column{0.52\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/forecast_1Dpos.png}\\[0.15em]
+        \includegraphics[width=0.85\linewidth]{figures/forecast_1Dvel.png}
+
+    \end{columns}
+\end{frame}
+
+\subsection{Missing Observations}
+
+\begin{frame}\frametitle{Missing Observations}
+
+    If observations $\mathbf{y}_{m+1}, \ldots, \mathbf{y}_{m+h}$ are missing, then the marginal state distribution satisfies:
+    
     \begin{align*}
-        P(\mathbf{x}_{n+h}|\mathbf{y}_1,\ldots,\mathbf{y}_{n})&=N(\mathbf{x}_{n+h}|\mathbf{x}_{n+h|n},P_{n+h|n})\\
-        \mathbf{x}_{n+h|n}&=A\ \mathbf{x}_{n+h-1|n}\\
-        P_{n+h|n}&=A\ P_{n+h-1|n}A^\intercal+Q\\
+        P(\mathbf{x}_{n} \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_{m+h+1}, \ldots, \mathbf{y}_n) &= \mathcal{N}(\mathbf{x}_{n} \mid \mathbf{x}_{n \mid \text{gap}}, P_{n \mid \text{gap}})
     \end{align*}
 
-	Notes:
+    \vspace{0.5em}
+    \noindent These gapped estimates ($\mathbf{x}_{n \mid \text{gap}}$ and $P_{n \mid \text{gap}}$) can be computed using a standard Kalman filter by simply omitting measurement updates (i.e., setting filtered estimates equal to their predicted values: $\mathbf{x}_{k \mid k} = \mathbf{x}_{k \mid k-1}$ and $P_{k \mid k} = P_{k \mid k-1}$) at steps with missing observations.
 
-\begin{enumerate}
+\end{frame}
 
-	\item the previous equations can be implemented in the Kalman filter by
-	setting the missing observations $\mathbf{y}_{n+1},\ldots,\mathbf{y}_{n+h}$
-	to invalid values and setting the filtered mean and covariance to their
-	predicted values (i.e., $x_{m|m}=x_{m|m-1}$, $P_{m|m}=P_{m|m-1}$) when an
-	observation is invalid.
+\begin{frame}[fragile]
+    \frametitle{Practical: Missing Observations}
 
-\end{enumerate}
+    \begin{columns}[T]
+        % Left Column: Practical Instructions & Colab Link
+        \column{0.45\textwidth}
+        \textbf{Instructions:}
+        
+        \small Infer positions, velocities and accelerations with a gap of missing observation of length 100~ms at the center of the observations window.
 
+        \vspace{2em}
+        \centering
+        \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/exercises/plotBatchMissingSimulated1DTrajectoryDWPA.ipynb}{
+            \beamerbutton{\faCode\ Open in Google Colab}
+        }
+
+        % Right Column: Clean Vertically Stacked Plots
+        \column{0.52\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/missing_1Dpos.png}\\[0.15em]
+        \includegraphics[width=0.85\linewidth]{figures/missing_1Dvel.png}
+
+    \end{columns}
 \end{frame}
 
 \section{Derivation of Kalman filter equations}
