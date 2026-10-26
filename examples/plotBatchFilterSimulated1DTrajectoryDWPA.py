@@ -31,11 +31,11 @@ sqrt_diag_V0_value = 1e-03
 # Set LDS parameters
 # ~~~~~~~~~~~~~~~~~~
 
-B = np.array([[1, dt, .5*dt**2],
+A = np.array([[1, dt, .5*dt**2],
               [0, 1, dt],
               [0, 0, 1]],
              dtype=np.double)
-Z = np.array([[1, 0, 0]], dtype=np.double)
+C = np.array([[1, 0, 0]], dtype=np.double)
 
 Q = sigma_a**2 * np.array([[dt**4/4, dt**3/2, dt**2/2],
                            [dt**3/2, dt**2,   dt],
@@ -57,8 +57,8 @@ V0 = np.diag(np.ones(len(m0))*sqrt_diag_V0_value**2)
 # fix random seed
 np.random.seed(seed=1234)
 
-M = B.shape[0]
-P = Z.shape[0]
+M = A.shape[0]
+P = C.shape[0]
 
 # state noise
 w = np.random.multivariate_normal(np.zeros(M), Q, num_pos).T
@@ -69,10 +69,10 @@ x0 = np.random.multivariate_normal(m0, V0, 1).flatten()
 # sample
 x = np.empty(shape=(M, num_pos))
 y = np.empty(shape=(P, num_pos))
-x[:, 0] = B @ x0 + w[:, 0]
+x[:, 0] = A @ x0 + w[:, 0]
 for n in range(1, num_pos):
-    x[:, n] = B @ x[:, n-1] + w[:, n]
-y = Z @ x + v
+    x[:, n] = A @ x[:, n-1] + w[:, n]
+y = C @ x + v
 t = np.arange(num_pos) * dt
 
 #%%
@@ -97,19 +97,19 @@ K = np.empty(shape=[M, P, N])
 
 for k in range(N):
     if k == 0:
-        xnn1[:, 0, 0] = B @ m0
-        Pnn1[:, :, 0] = B @ V0 @ B.T + Q
+        xnn1[:, 0, 0] = A @ m0
+        Pnn1[:, :, 0] = A @ V0 @ A.T + Q
     else:
-        xnn1[:, :, k] = B @ xnn[:, :, k-1]
-        Pnn1[:, :, k] = B @ Pnn[:, :, k-1] @ B.T + Q
-    Stmp = Z @ Pnn1[:, :, k] @ Z.T + R
+        xnn1[:, :, k] = A @ xnn[:, :, k-1]
+        Pnn1[:, :, k] = A @ Pnn[:, :, k-1] @ A.T + Q
+    Stmp = C @ Pnn1[:, :, k] @ C.T + R
     Sn[:, :, k] = (Stmp + Stmp.T) / 2
     Sinv = np.linalg.inv(Sn[:, :, k])
-    K[:, :, k] = Pnn1[:, :, k] @ Z.T @ Sinv
-    pred_obs = Z @ xnn1[:, :, k]
+    K[:, :, k] = Pnn1[:, :, k] @ C.T @ Sinv
+    pred_obs = C @ xnn1[:, :, k]
     innov[:, 0, k] = y[:, k] - pred_obs[:, 0]
     xnn[:, :, k] = xnn1[:, :, k] + K[:, :, k] @ innov[:, :, k]
-    Pnn[:, :, k] = Pnn1[:, :, k] - K[:, :, k] @ Z @ Pnn1[:, :, k]
+    Pnn[:, :, k] = Pnn1[:, :, k] - K[:, :, k] @ C @ Pnn1[:, :, k]
 
 filter_res = {"xnn1": xnn1, "Pnn1": Pnn1, "xnn": xnn, "Pnn": Pnn,
               "innov": innov, "K": K, "Sn": Sn}
