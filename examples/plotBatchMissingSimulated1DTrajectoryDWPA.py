@@ -140,12 +140,12 @@ Jn = np.empty(shape=[M, M, N])
 
 xnN[:, :, -1] = xnn[:, :, -1]
 PnN[:, :, -1] = Pnn[:, :, -1]
-for n in reversed(range(1, N)):
-    Jn[:, :, n-1] = Pnn[:, :, n-1] @ A.T @ np.linalg.inv(Pnn1[:, :, n])
-    xnN[:, :, n-1] = xnn[:, :, n-1] + \
-        Jn[:, :, n-1] @ (xnN[:, :, n]-xnn1[:, :, n])
-    PnN[:, :, n-1] = Pnn[:, :, n-1] + \
-        Jn[:, :, n-1] @ (PnN[:, :, n]-Pnn1[:, :, n]) @ Jn[:, :, n-1].T
+for n in reversed(range(0, N-1)):
+    Jn[:, :, n] = Pnn[:, :, n] @ A.T @ np.linalg.inv(Pnn1[:, :, n+1])
+    xnN[:, :, n] = xnn[:, :, n] + \
+        Jn[:, :, n] @ (xnN[:, :, n+1]-xnn1[:, :, n+1])
+    PnN[:, :, n] = Pnn[:, :, n] + \
+        Jn[:, :, n] @ (PnN[:, :, n+1]-Pnn1[:, :, n+1]) @ Jn[:, :, n].T
 # initial state x00 and V00
 # return the smooth estimates of the state at time 0: x0N and V0N
 J0 = V0 @ A.T @ np.linalg.inv(Pnn1[:, :, 0])
