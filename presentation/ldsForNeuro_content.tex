@@ -75,6 +75,13 @@
 \usepackage{tikz}
 \usetikzlibrary {positioning}
  \usetikzlibrary{overlay-beamer-styles}
+% Source - https://tex.stackexchange.com/a/5255
+% Posted by Jan Hlavacek, modified by community. See post 'Timeline' for change history
+% Retrieved 2026-10-27, License - CC BY-SA 3.0
+
+% \usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 \newtheorem{claim}{Claim}
 
@@ -847,6 +854,81 @@ setting the filtered estimates to their predicted values: $\mathbf{x}_{m|m} =
         \includegraphics[width=0.85\linewidth]{figures/missing_1Dvel.png}
 
     \end{columns}
+\end{frame}
+
+\section{Learning}
+
+\begin{frame}{Learning Model Parameters from Data}
+    \begin{itemize}
+        \item Most often, before \textbf{inference} (i.e., finding the distribution of latent variables), we need to do \textbf{learning} (i.e., estimating optimal values of model parameters).
+        \item For our DWPA \textbf{model}, we need to learn the parameters highlighted in red:
+    \end{itemize}
+
+    \vspace{0.2em}
+    \begin{align*}
+        x_0 &\sim \mathcal{N}(\textcolor{red}{\mathbf{m}_0}, \textcolor{red}{V_0})\\
+        x_n &= A x_{n-1} + w_n && \text{with } w_n \sim \mathcal{N}(0, \textcolor{red}{\sigma_a^2} Q_e) \\
+        y_n &= C x_n + v_n && \text{with } v_n \sim \mathcal{N}(0, R), \quad R = [\textcolor{red}{\sigma_x^2}]
+    \end{align*}
+    \vspace{0.2em}
+
+    \begin{itemize}
+        \item Next, we will discuss a \textbf{maximum likelihood} method, using gradient ascent, to learn model parameters.
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+
+\item Most often, before performing inference (i.e., inferring the distribution
+of unobserved variables in our models) we need to do learning (i.e., estimate
+optimal model parameters to represent a given type of data).
+
+\item For example, suppose we know that the DWPA model is a good model to infer
+kinematics from positions of mice recorded in our foraging experiments.
+
+\item We are given ten minutes of measured positions of a mouse in these
+experiments and we are asked to infer denoised positions, or to infer
+velocities or accelerations, or to fill missing values, or to forecast
+positions, velocities and/or accelerations using these recordings.
+
+\item To perform inferences with the Kalman filter method we need to have good
+estimates of the model parameters that generated the measurements; the standard
+deviation of the state acceleration, $\sigma_a$, the standard deviation of the
+measured positions $\sigma_x$, and the mean and covariance of the initial
+state, $\mathbf{m}_0$ and $V_0$.
+
+\item Next we will discuss a maximum likelihood method, using gradient ascent,
+to estimate LDS model parameters.
+
+}
+
+\begin{frame}{Supervised vs.\ Unsupervised Learning}
+    \centering
+    \vspace{0.5em}
+    \begin{tabular}{p{0.47\textwidth} p{0.47\textwidth}}
+        \textbf{Supervised Learning} & \textbf{Unsupervised Learning} \\ \hline
+        \textbf{Data:} & \textbf{Data:} \\
+        $\quad \{(\mathbf{y}_n, z_n)\}_{n=1}^N$ & $\quad \{\mathbf{y}_n\}_{n=1}^N$ \\[0.4em]
+        
+        \textbf{Predictive Model:} & \textbf{Probabilistic Model:} \\
+        $\quad \hat{z}_n^\theta = f(\mathbf{y}_n \mid \theta)$ & $\quad p(\mathbf{y}_{1:N} \mid \theta)$ \\[0.4em]
+        
+        \textbf{Loss Function:} & \textbf{Likelihood Function:} \\
+        $\quad \mathcal{L}(\theta) = \frac{1}{N}\sum_{n=1}^N \left(z_n - \hat{z}_n^\theta\right)^2$ & $\quad L(\theta) = p(\mathbf{y}_{1:N} \mid \theta)$ \\[0.4em]
+        
+        \textbf{Optimization:} & \textbf{Optimization:} \\
+        $\quad \hat{\boldsymbol{\theta}} = \arg\min_\theta \mathcal{L}(\theta)$ & $\quad \hat{\boldsymbol{\theta}} = \arg\max_\theta L(\theta)$
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Likelihood Function for LDS}
+
+	\begin{align*}
+		\log L(\theta) &=\log p(\mathbf{y}_{1:N} \mid \theta)=\log p(\tilde{\mathbf{y}}_{1:N} \mid \theta)=\log \prod_{n=1}^Np(\tilde{\mathbf{y}}_n \mid \theta)\\
+                       &=\sum_{n=1}^N\log p(\tilde{\mathbf{y}}_n \mid \theta)=\sum_{n=1}^N\log\mathcal{N}(\tilde{\mathbf{y}}_n \mid \mathbf{0},S_n)\\
+                       &=\sum_{n=1}^N\log\left[\frac{1}{(2\pi)^{P/2}|S_n|^{1/2}}\exp\left(-\frac{1}{2}\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right)\right]\\
+                       &=\sum_{n=1}^N\left[-(P/2)\log(2\pi)-(1/2)\log|S_n|-\frac{1}{2}\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right]
+	\end{align*}
 \end{frame}
 
 \section{Derivation of Kalman filter equations}
