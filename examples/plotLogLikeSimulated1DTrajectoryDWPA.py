@@ -117,6 +117,10 @@ for n in range(1, num_pos):
 y = C @ x + v
 t = np.arange(num_pos) * dt
 
+#%%
+# Compute log-likelihoods
+# ~~~~~~~~~~~~~~~~~~~~~~~
+
 ll_true_params = kalman_filter_and_log_like(y=y, A=A, Q=Q, C=C, R=R, m0=m0,
                                             V0=V0)["log_like"].item()
 sigma_a_modified = 2 * sigma_a
