@@ -18,7 +18,13 @@ author = 'Joaquin Rapela'
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx_gallery.gen_gallery",
+    "sphinx.ext.mathjax",
 ]
+
+# Force Sphinx to use MathJax v2 so Plotly can parse LaTeX correctly
+mathjax_path = (
+    "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+)
 
 templates_path = ['_templates']
 exclude_patterns = []
