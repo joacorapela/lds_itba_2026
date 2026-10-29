@@ -12,8 +12,8 @@ The code below estimates parameters of the DWPA model using grid search.
 # ~~~~~~~~~~~~~~~
 
 import numpy as np
+from tqdm import tqdm
 import plotly.graph_objs as go
-
 
 #%%
 # Function to perform Kalman filtering and compute the log-likelihood of LDS model parameters
@@ -133,7 +133,9 @@ sigma_a_values = np.concatenate([np.arange(sigma_a_min_seg1, sigma_a_max_seg1,
 sigma_y_values = np.arange(sigma_y_min, sigma_y_max, sigma_y_step)
 ll = np.empty(shape=(len(sigma_a_values), len(sigma_y_values)),
               dtype=np.double)
-for i, sigma_a_value in enumerate(sigma_a_values):
+for i, sigma_a_value in enumerate(
+    tqdm(sigma_a_values, desc="Computing grid search")
+):
     Q_gs = Qe * sigma_a_value**2
     for j, sigma_y_value in enumerate(sigma_y_values):
         R_gs = np.diag([sigma_y_value**2])
