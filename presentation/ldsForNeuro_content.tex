@@ -70,6 +70,8 @@
 % \setlist[description]{style=nextline}
 \usepackage{amsthm}
 \usepackage{media9}
+\usepackage{algpseudocode}
+\usepackage[T1]{fontenc}
 % \usepackage{multimedia}
 \usepackage{fontawesome5}
 \usepackage{tikz}
@@ -922,14 +924,153 @@ to estimate LDS model parameters.
 \end{frame}
 
 \begin{frame}{Likelihood Function for LDS}
+    \small
+    \setlength{\jot}{1pt} % Tighten the vertical spacing between alignment lines
 
 	\begin{align*}
 		\log L(\theta) &=\log p(\mathbf{y}_{1:N} \mid \theta)=\log p(\tilde{\mathbf{y}}_{1:N} \mid \theta)=\log \prod_{n=1}^Np(\tilde{\mathbf{y}}_n \mid \theta)\\
                        &=\sum_{n=1}^N\log p(\tilde{\mathbf{y}}_n \mid \theta)=\sum_{n=1}^N\log\mathcal{N}(\tilde{\mathbf{y}}_n \mid \mathbf{0},S_n)\\
                        &=\sum_{n=1}^N\log\left[\frac{1}{(2\pi)^{P/2}|S_n|^{1/2}}\exp\left(-\frac{1}{2}\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right)\right]\\
-                       &=\sum_{n=1}^N\left[-(P/2)\log(2\pi)-(1/2)\log|S_n|-\frac{1}{2}\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right]
+                       &=\sum_{n=1}^N\left[-(P/2)\log(2\pi)-(1/2)\log|S_n|-\frac{1}{2}\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right]\\
+                       &=-\frac{1}{2}NP\log(2\pi)-\sum_{n=1}^N\frac{1}{2}
+                       \left[\log|S_n|+\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right]\\
 	\end{align*}
+
+    \vspace{-0.5em}
+    \centering
+    \textcolor{red}{$\log L(\theta)$ can be computed inside the Kalman filtering
+    function}.
+
 \end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Practical: Calculation of Log-Likelihood}
+
+    \begin{columns}[T]
+        % Left Column: Practical Instructions & Colab Link
+        \column{0.48\textwidth}
+        \textbf{Instructions:}
+        
+		\footnotesize
+
+		\begin{enumerate}
+
+			\item Simulate a 1D trajectory using the DWPA model,
+
+			\item Calculate the
+log-likelihood of the parameters used in the simulation (i.e., true
+parameters),
+
+			\item Calculate the log-likelihood the parameters
+$\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
+\sigma_y=0.5\times true\_\sigma_y\}$,
+
+			\item Plot the calculated log-likelihoods.
+
+		\end{enumerate}
+        \vspace{2em}
+        \centering
+        \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotLogLikeSimulated1DTrajectoryDWPA.ipynb}{
+            \beamerbutton{\faCode\ Open in Google Colab}
+        }
+
+        % Right Column: Clean Vertically Stacked Plots
+        \column{0.50\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/logLike_trueVsModified_1Dpos.png}\\[0.15em]
+
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Maximising the Log-Likelihood}
+    
+    \begin{itemize}
+        \item We want to find the parameters of the probabilistic model that maximize the log-likelihood function:
+        $$\hat{\theta} = \arg\max_{\theta} L(\theta)$$
+        
+        \item Several optimization strategies exist depending on the model structure:
+        \begin{itemize}
+            \item \textbf{Gradient-based methods:} First-order (gradient ascent) and second-order/quasi-Newton methods (e.g., L-BFGS).
+            \item \textbf{Expectation-Maximization (EM):} Iterative algorithm tailored for latent-variable models (crucial for LDS via the Baum-Welch algorithm).
+            \item \textbf{Black-box / Global methods:} Genetic algorithms, grid/brute-force search, and sampling-based methods.
+        \end{itemize}
+        
+        \item \textbf{Today's focus:} We will explore a brute-force approach and a gradient ascent implementation to build intuition.
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Practical: Maximum-Likelihood by Grid Search}
+
+    \begin{columns}[T]
+        % Left Column: Practical Instructions & Colab Link
+        \column{0.48\textwidth}
+        \textbf{Instructions:}
+        
+		\footnotesize
+
+		\begin{enumerate}
+
+			\item Simulate a 1D trajectory using the DWPA model,
+
+            \item Calculate log-likelihoods for $\sigma_a\in]0.1, 40.0]$,
+                $\sigma_x\in[0.9, 1.1]$, $m_0=true\_m_0$ and $V_0=true\_V_0$.
+
+            \item Display the previous log-likelihoods in a contour plot,
+                marking the location of the maximum.
+
+		\end{enumerate}
+        \vspace{2em}
+        \centering
+        \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/exercises/plotMLgridSearch.ipynb}{
+            \beamerbutton{\faCode\ Open in Google Colab}
+        }
+
+        % Right Column: Clean Vertically Stacked Plots
+        \column{0.50\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{figures/mlGridSearch.png}\\[0.15em]
+
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Maximisation using gradient-based methods}
+    \small
+    \begin{algorithmic}[1]
+        \State $\mathbf{params}_n \gets \text{initial\_params}$
+        \State $\text{eval}_n \gets f(\mathbf{params}_n)$
+        \While{True}
+            \State $\mathbf{dir}_n \gets \nabla f(\mathbf{params}_n)$ \# or $\mathbf{dir}_n \gets \mathbf{H}(\mathbf{params}_n)^{-1} \nabla f(\mathbf{params}_n)$
+            \State $\text{eval}_{\text{new}}, \mathbf{params}_{\text{new}} \gets \text{line\_search}(\mathbf{dir}_n, \mathbf{params}_n)$
+            \If{$\text{eval}_{\text{new}} - \text{eval}_n < \epsilon$}
+                \State \textbf{return} $\mathbf{params}_{\text{new}}$
+            \Else
+                \State $\mathbf{params}_n \gets \mathbf{params}_{\text{new}}$
+                \State $\text{eval}_n \gets \text{eval}_{\text{new}}$
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{frame}
+
+\begin{comment}
+\begin{frame}{Maximisation using gradient-based methods}
+
+    n = 0
+    params_n = initial_params
+    eval_n = f(params_n)
+    while(True):
+        dir_n = $\nabla$ f(params_n) # or dir_n = H(params_n)^{-1} $\nabla$ f(params_n)
+        eval_new, params_new = line_search(dir_n, params_n)
+        if eval_new - eval_n < \epsilon:
+            return params_new
+        else:
+            params_n = params_new
+            eval_n = eval_new
+
+\end{frame}
+\end{comment}
 
 \section{Derivation of Kalman filter equations}
 
