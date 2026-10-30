@@ -1,10 +1,10 @@
 
 """
-Estimation of DWPA model parameters by grid search and gradient-based
-=====================================================================
+Estimation of DWPA model parameters by grid search and gradient-based optimisation
+==================================================================================
 
 The code below estimates parameters of the DWPA model using grid search and a
-gradient-based method, LBFGS.
+quasi-Newton optimisation method, LBFGS.
 
 """
 
@@ -82,8 +82,7 @@ pos_x0 = 0.0
 vel_x0 = 0.0
 ace_x0 = 0.0
 dt = 1e-3
-num_pos = 100
-# num_pos = 1000
+num_pos = 1000
 sigma_a = 1.0
 sigma_y = 1.0
 sqrt_diag_V0_value = 1e-03
@@ -179,8 +178,8 @@ max_sigma_a_gs = sigma_a_values[ll_gs_argmax[0]]
 max_sigma_y_gs = sigma_y_values[ll_gs_argmax[1]]
 
 #%%
-# Quasi-Newton (LBFGS) maximisation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Run a quasi-Newton (LBFGS) maximisation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Define variables that control the optimisation
 
@@ -265,7 +264,6 @@ trace = go.Contour(
 )
 fig.add_trace(trace)
 
-'''
 # Grid search maximum cross
 trace = go.Scatter(
     x=[max_sigma_y_gs],
@@ -283,7 +281,6 @@ trace = go.Scatter(
     showlegend=False,
 )
 fig.add_trace(trace)
-'''
 
 # LBFGS optimisation path
 trace = go.Scatter(
@@ -303,5 +300,4 @@ fig.add_trace(trace)
 
 fig.update_yaxes(title=r"$\sigma_a$", title_font_size=20)
 fig.update_xaxes(title=r"$\sigma_y$", title_font_size=20)
-# fig
-fig.write_html("/tmp/plotMLlbfgs.html")
+fig
