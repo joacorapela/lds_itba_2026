@@ -1038,39 +1038,94 @@ $\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
 
 \begin{frame}{Maximisation using gradient-based methods}
     \small
+
     \begin{algorithmic}[1]
-        \State $\mathbf{params}_n \gets \text{initial\_params}$
-        \State $\text{eval}_n \gets f(\mathbf{params}_n)$
+        \State $\theta_n \gets \theta_0$
+        \State $\text{eval}_n \gets L(\theta_n)$
         \While{True}
-            \State $\mathbf{dir}_n \gets \nabla f(\mathbf{params}_n)$ \# or $\mathbf{dir}_n \gets \mathbf{H}(\mathbf{params}_n)^{-1} \nabla f(\mathbf{params}_n)$
-            \State $\text{eval}_{\text{new}}, \mathbf{params}_{\text{new}} \gets \text{line\_search}(\mathbf{dir}_n, \mathbf{params}_n)$
+            \State $\mathbf{p}_n \gets \textcolor{red}{\text{find\_search\_direction}(L, \theta_n)}$
+            \State $\text{eval}_{\text{new}},\theta_{\text{new}} \gets \textcolor{red}{\text{line\_search}(L,\mathbf{p}_n,\theta_n)}$
             \If{$\text{eval}_{\text{new}} - \text{eval}_n < \epsilon$}
-                \State \textbf{return} $\mathbf{params}_{\text{new}}$
+                \State \textbf{return} $\theta_{\text{new}}$
             \Else
-                \State $\mathbf{params}_n \gets \mathbf{params}_{\text{new}}$
+                \State $\theta_n \gets \theta_{\text{new}}$
                 \State $\text{eval}_n \gets \text{eval}_{\text{new}}$
             \EndIf
         \EndWhile
     \end{algorithmic}
 \end{frame}
 
-\begin{comment}
-\begin{frame}{Maximisation using gradient-based methods}
+\begin{frame}{Notes on maximisation using gradient-based methods}
 
-    n = 0
-    params_n = initial_params
-    eval_n = f(params_n)
-    while(True):
-        dir_n = $\nabla$ f(params_n) # or dir_n = H(params_n)^{-1} $\nabla$ f(params_n)
-        eval_new, params_new = line_search(dir_n, params_n)
-        if eval_new - eval_n < \epsilon:
-            return params_new
-        else:
-            params_n = params_new
-            eval_n = eval_new
+    \begin{enumerate}
 
+        \item \textbf{Search direction}:
+            \begin{itemize}
+
+                \item \textbf{Steepest-ascent direction} $\nabla L(\theta)$: cheaper to
+                    compute, tends to zizag near ridges of $L$.
+
+                \item \textbf{Newton direction} $\nabla^2L(\theta)^{-1}\nabla
+                    L(\theta)$: more expensive to compute, faster convergence
+                    to the maximum of $L$.
+
+                \item \textbf{Quasi-Newton directions}: approximations to
+                    Newton direction using only gradient information, less
+                    expensive than Newton direction, better
+                    convergence the steepest-asceint direction.
+
+            \end{itemize}
+
+        \item \textbf{Line search}: finds the step size $\alpha$ roughly minimising
+            $\phi(\alpha)=L(\theta_k+\alpha\mathbf{p}_k)$ with few evaluations
+            of $L$ (Armijo, Goldstein, Wolfe rules to choose optimal step sizes).
+
+        \item \textbf{Automatic differentiation}: methods to automatically
+            compute exact grandients and Hessians (greatly simplying 
+            implementations).
+
+        \item Nocedal, J., \& Wright, S. J. (Eds.). (1999). Numerical
+            optimization. New York, NY: Springer New York.
+
+    \end{enumerate}
 \end{frame}
-\end{comment}
+
+\begin{frame}{Notes on Maximisation Using Gradient-Based Methods}
+    \begin{enumerate}
+        \item<1-> \textbf{Search direction}:
+            \begin{itemize}
+                \item \textbf{Steepest-ascent direction} $\nabla L(\theta)$: cheaper to compute, tends to zigzag near ridges of $L$.
+                \item \textbf{Newton direction} $\nabla^2L(\theta)^{-1}\nabla L(\theta)$: more expensive to compute, faster convergence to the maximum of $L$.
+                \item \textbf{Quasi-Newton directions}: approximations to Newton direction using only gradient information; less expensive than Newton, and better convergence than steepest ascent.
+            \end{itemize}
+            
+        \item<2-> \textbf{Line search}: finds step size $\alpha$ roughly minimising $\phi(\alpha)=L(\theta_k+\alpha\mathbf{p}_k)$ with few evaluations of $L$ (e.g., Armijo, Goldstein, Wolfe rules).
+        
+        \item<3-> \textbf{Automatic differentiation}: methods to automatically compute exact gradients and Hessians, greatly simplifying implementations.
+    \end{enumerate}
+
+    \vfill
+    \footnotetext{\tiny Based on Nocedal, J., \& Wright, S. J. (1999). \textit{Numerical optimization}. Springer New York.}
+\end{frame}
+
+\begin{frame}{Notes on Maximisation Using Gradient-Based Methods}
+    \begin{enumerate}
+        \item \textbf{Search direction}:
+            \begin{itemize}
+                \item \textbf{Steepest-ascent direction} $\nabla L(\theta)$: cheaper to compute, tends to zigzag near ridges of $L$.
+                \item \textbf{Newton direction} $\nabla^2L(\theta)^{-1}\nabla L(\theta)$: more expensive to compute, faster convergence to the maximum of $L$.
+                \item \textbf{Quasi-Newton directions}: approximations to Newton direction using only gradient information; less expensive than Newton, and better convergence than steepest ascent.
+            \end{itemize}
+            
+        \item \textbf{Line search}: finds step size $\alpha$ roughly minimising $\phi(\alpha)=L(\theta_k+\alpha\mathbf{p}_k)$ with few evaluations of $L$ (e.g., Armijo, Goldstein, Wolfe rules).
+        
+        \item \textbf{Automatic differentiation}: methods to automatically compute exact gradients and Hessians, greatly simplifying implementations.
+    \end{enumerate}
+
+    \vfill
+    \tiny \color{gray}
+    Reference: Nocedal, J., \& Wright, S. J. (1999). \textit{Numerical optimization}. Springer New York.
+\end{frame}
 
 \section{Derivation of Kalman filter equations}
 
