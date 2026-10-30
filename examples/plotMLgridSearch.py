@@ -96,17 +96,17 @@ V0 = np.diag(np.ones(len(m0))*sqrt_diag_V0_value**2)
 np.random.seed(seed=1234)
 
 M = A.shape[0]
-N = C.shape[0]
+P = C.shape[0]
 
 # state noise
 w = np.random.multivariate_normal(np.zeros(M), Q, num_pos).T
 # measurement noise
-v = np.random.multivariate_normal(np.zeros(N), R, num_pos).T
+v = np.random.multivariate_normal(np.zeros(P), R, num_pos).T
 # initial state noise
 x0 = np.random.multivariate_normal(m0, V0, 1).flatten()
 # sample
 x = np.empty(shape=(M, num_pos))
-y = np.empty(shape=(N, num_pos))
+y = np.empty(shape=(P, num_pos))
 x[:, 0] = A @ x0 + w[:, 0]
 for n in range(1, num_pos):
     x[:, n] = A @ x[:, n-1] + w[:, n]
@@ -134,7 +134,7 @@ sigma_y_values = np.arange(sigma_y_min, sigma_y_max, sigma_y_step)
 ll = np.empty(shape=(len(sigma_a_values), len(sigma_y_values)),
               dtype=np.double)
 for i, sigma_a_value in enumerate(
-    tqdm(sigma_a_values, desc="Computing grid search")
+    tqdm(sigma_a_values, desc="Computing LL grid")
 ):
     Q_gs = Qe * sigma_a_value**2
     for j, sigma_y_value in enumerate(sigma_y_values):
