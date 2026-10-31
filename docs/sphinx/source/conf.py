@@ -46,5 +46,5 @@ sphinx_gallery_conf = {
   "image_scrapers": ("plotly.io._sg_scraper.plotly_sg_scraper",),
   # "image_scrapers": (plotly_sg_scraper,),
   # Automatically re-run stale examples on build
-  "run_stale_examples": True,
+  "run_stale_examples": False,
 }
