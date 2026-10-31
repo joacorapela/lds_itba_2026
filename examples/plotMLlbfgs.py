@@ -19,17 +19,13 @@ import torch
 from tqdm import tqdm
 import plotly.graph_objs as go
 
+torch.autograd.set_detect_anomaly(True)
 
 #%%
 # Function to compute the log-likelihood of LDS model parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-import math
-import torch
-
-
 def compute_log_like(y, A, Q, C, R, m0, V0):
-    M = A.shape[0]
     N = y.shape[1]
     P = C.shape[0]
 
@@ -40,37 +36,37 @@ def compute_log_like(y, A, Q, C, R, m0, V0):
     )
 
     for n in range(N):
-      if n == 0:
-        # Out-of-place assignments for initial step
-        xnn1 = A @ torch.unsqueeze(m0, -1)
-        Pnn1 = A @ V0 @ A.T + Q
-      else:
-        xnn1 = A @ xnn
-        Pnn1 = A @ Pnn @ A.T + Q
+        if n == 0:
+            # Out-of-place assignments for initial step
+            xnn1 = A @ torch.unsqueeze(m0, -1)
+            Pnn1 = A @ V0 @ A.T + Q
+        else:
+            xnn1 = A @ xnn
+            Pnn1 = A @ Pnn @ A.T + Q
 
-      Stmp = C @ Pnn1 @ C.T + R
-      Sn = (Stmp + Stmp.T) / 2
+        Stmp = C @ Pnn1 @ C.T + R
+        Sn = (Stmp + Stmp.T) / 2
 
-      # Solve for inverse cleanly
-      Sinv = torch.linalg.solve(
-          Sn, torch.eye(P, dtype=torch.double),
-      )
+        # Solve for inverse cleanly
+        Sinv = torch.linalg.solve(
+            Sn, torch.eye(P, dtype=torch.double),
+        )
 
-      K = Pnn1 @ C.T @ Sinv
+        K = Pnn1 @ C.T @ Sinv
 
-      pred_obs = C @ xnn1
+        pred_obs = C @ xnn1
 
-      # Handle observation slice dimensions safely
-      yn = y[:, n : (n + 1)]  # keeps shape [P, 1]
-      innov = yn - pred_obs
+        # Handle observation slice dimensions safely
+        yn = y[:, n:(n + 1)]  # keeps shape [P, 1]
+        innov = yn - pred_obs
 
-      xnn = xnn1 + K @ innov
-      Pnn = Pnn1 - K @ C @ Pnn1
+        xnn = xnn1 + K @ innov
+        Pnn = Pnn1 - K @ C @ Pnn1
 
-      # Out-of-place log-likelihood update
-      log_like = log_like - 0.5 * (
-          torch.logdet(Sn) + innov.T @ torch.linalg.solve(Sn, innov)
-      )
+        # Out-of-place log-likelihood update
+        log_like = log_like - 0.5 * (
+            torch.logdet(Sn) + innov.T @ torch.linalg.solve(Sn, innov)
+        )
 
     return log_like
 
@@ -195,7 +191,7 @@ sigma_y0 = 1.1
 
 # perform optimisation
 optim_params = {
-    "max_iter": 1,  # Set to 1 per call so we can manually control and print each step
+    "max_iter": 1,
     "lr": lr,
     "tolerance_grad": tolerance_grad,
     "tolerance_change": tolerance_change,
@@ -203,25 +199,21 @@ optim_params = {
 }
 sigma_a_tensor = torch.tensor([sigma_a0], dtype=torch.double)
 sigma_y_tensor = torch.tensor([sigma_y0], dtype=torch.double)
-x = [sigma_a_tensor, sigma_y_tensor]
-for i in range(len(x)):
-  x[i].requires_grad = True
-optimizer = torch.optim.LBFGS(x, **optim_params)
+sigma_a_tensor.requires_grad = True
+sigma_y_tensor.requires_grad = True
+optimizer = torch.optim.LBFGS([sigma_a_tensor, sigma_y_tensor], **optim_params)
 
-def compute_log_like_from_sigmas():
-    R_lbfgs = (sigma_y_tensor**2).reshape(P, P)
-    Q_lbfgs = sigma_a_tensor**2 * Qe
-
-    log_like = compute_log_like(
-        y=y, A=A, Q=Q_lbfgs, C=C, R=R_lbfgs, m0=m0, V0=V0
-    )
-    return log_like
 
 def closure():
     optimizer.zero_grad()
-    log_like = compute_log_like_from_sigmas()
+
+    R_lbfgs = (sigma_y_tensor**2).reshape(P, P)
+    Q_lbfgs = sigma_a_tensor**2 * Qe
+    log_like = compute_log_like(
+        y=y, A=A, Q=Q_lbfgs, C=C, R=R_lbfgs, m0=m0, V0=V0
+    )
     loss = -log_like
-    loss.backward()
+    loss.backward(retain_graph=True)
     return loss
 
 
@@ -229,7 +221,11 @@ def closure():
 print(f"{'Iteration':<10} | {'Loss (Neg Log-Likelihood)':<25} | {'sigma_a':<12} | {'sigma_y':<12}")
 print("-" * 65)
 
-ll0 = compute_log_like_from_sigmas()
+R_lbfgs = (sigma_y_tensor**2).reshape(P, P)
+Q_lbfgs = sigma_a_tensor**2 * Qe
+ll0 = compute_log_like(
+    y=y, A=A, Q=Q_lbfgs, C=C, R=R_lbfgs, m0=m0, V0=V0
+)
 
 hist_ll = [ll0]
 hist_sigma_a = [sigma_a0]
@@ -238,8 +234,12 @@ for epoch in range(max_iter):
     # Perform optimization step
     optimizer.step(closure)
 
-    # Save parameters and log-likelihood histories
-    lln = compute_log_like_from_sigmas()
+    # Save history of parameters and log-likelihoods
+    R_lbfgs = (sigma_y_tensor**2).reshape(P, P)
+    Q_lbfgs = sigma_a_tensor**2 * Qe
+    lln = compute_log_like(
+        y=y, A=A, Q=Q_lbfgs, C=C, R=R_lbfgs, m0=m0, V0=V0
+    )
 
     hist_ll.append(lln)
     hist_sigma_a.append(sigma_a_tensor.item())
