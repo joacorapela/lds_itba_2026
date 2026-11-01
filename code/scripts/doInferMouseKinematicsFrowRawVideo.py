@@ -158,7 +158,6 @@ def main(argv):
     # build video writer
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    size = (frame_width, frame_height)
 
     # get LDS matrices for kinematics
     dt = 1.0 / fps
