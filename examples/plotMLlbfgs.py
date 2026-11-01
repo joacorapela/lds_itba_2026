@@ -1,7 +1,7 @@
 
 """
-Estimation of DWPA model parameters by grid search and gradient-based optimisation
-==================================================================================
+ML estimation of DWPA model parameters by grid search and gradient-based optimisation
+=====================================================================================
 
 The code below estimates parameters of the DWPA model using grid search and a
 quasi-Newton optimisation method, LBFGS.
@@ -18,8 +18,6 @@ import numpy as np
 import torch
 from tqdm import tqdm
 import plotly.graph_objs as go
-
-torch.autograd.set_detect_anomaly(True)
 
 #%%
 # Function to compute the log-likelihood of LDS model parameters
@@ -78,7 +76,8 @@ pos_x0 = 0.0
 vel_x0 = 0.0
 ace_x0 = 0.0
 dt = 1e-3
-num_pos = 1000
+# num_pos = 1000
+num_pos = 100
 sigma_a = 1.0
 sigma_y = 1.0
 sqrt_diag_V0_value = 1e-03

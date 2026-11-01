@@ -1,7 +1,7 @@
 
 """
-Estimation of DWPA model parameters by grid search
-==================================================
+ML estimation of DWPA model parameters by grid search
+=====================================================
 
 The code below estimates parameters of the DWPA model using grid search.
 
