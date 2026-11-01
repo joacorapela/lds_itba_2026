@@ -6,10 +6,7 @@ import numpy as np
 import scipy.stats
 import cv2
 from google.colab.patches import cv2_imshow
-import ast
 
-import ssm.inference
-import ssm.kinematics.utils
 
 # %% [markdown]
 # # Define util functions
@@ -21,14 +18,14 @@ def getLDSmatricesForKinematics(dt, sigma_a, pos_x_R_std, pos_y_R_std):
     # section 6.3.3
 
     # Eq. 6.3.3-2
-    B = np.array([[1, dt, .5*dt**2, 0, 0, 0],
+    A = np.array([[1, dt, .5*dt**2, 0, 0, 0],
                   [0, 1, dt, 0, 0, 0],
                   [0, 0, 1, 0, 0, 0],
                   [0, 0, 0, 1, dt, .5*dt**2],
                   [0, 0, 0, 0, 1, dt],
                   [0, 0, 0, 0, 0, 1]],
                   dtype=np.double)
-    Z = np.array([[1, 0, 0, 0, 0, 0],
+    C = np.array([[1, 0, 0, 0, 0, 0],
                   [0, 0, 0, 1, 0, 0]],
                   dtype=np.double)
     # Eq. 6.3.3-4
@@ -42,7 +39,7 @@ def getLDSmatricesForKinematics(dt, sigma_a, pos_x_R_std, pos_y_R_std):
     Q = sigma_a**2 * Qe
     R = np.diag(np.array([pos_x_R_std**2, pos_y_R_std**2]))
 
-    return B, Q, Qe, Z, R
+    return A, Q, Qe, C, R
 
 
 def get_background(cap, frame_indices):
@@ -124,9 +121,9 @@ class OnlineKalmanFilter:
     linear dynamical system:
 
     .. math::
-       x_n &= B\\ x_{n-1} + w_n,\\ \\textrm{where}\\ w_n\\sim\\mathcal{N}(w_n|0, Q)\\, \\textrm{and}\\ x_n\\in\\Re^M
+       x_n &= A\\ x_{n-1} + w_n,\\ \\textrm{where}\\ w_n\\sim\\mathcal{N}(w_n|0, Q)\\, \\textrm{and}\\ x_n\\in\\Re^M
 
-       y_n &= Z\\ x_{n-1} + v_n,\\ \\textrm{where}\\ v_n\\sim\\mathcal{N}(v_n|0, R)\\, \\textrm{and}\\ y_n\\in\\Re^N
+       y_n &= C\\ x_{n-1} + v_n,\\ \\textrm{where}\\ v_n\\sim\\mathcal{N}(v_n|0, R)\\, \\textrm{and}\\ y_n\\in\\Re^N
 
        x_0&\\in\\mathcal{N}(x_0|m_0, V_0)
 
@@ -134,7 +131,7 @@ class OnlineKalmanFilter:
 
     .. code-block:: python
 
-        online_kf = OnlineKalmanFilter(B, Q, m0, V0, Z, R)
+        online_kf = OnlineKalmanFilter(A, Q, m0, V0, C, R)
         x_pred, P_pred = online_kf.predict()
 
         for y in ys:
@@ -154,12 +151,12 @@ class OnlineKalmanFilter:
     Note 2:
         observations :math:`y_n` should be sampled uniformly.
     """
-    def __init__(self, B, Q, m0, V0, Z, R):
-        self._B = B
+    def __init__(self, A, Q, m0, V0, C, R):
+        self._B = A
         self._Q = Q
         self._m0 = m0
         self._V0 = V0
-        self._Z = Z
+        self._Z = C
         self._R = R
 
         self._x = m0
@@ -174,8 +171,8 @@ class OnlineKalmanFilter:
         :return: (state, covariance): tuple containing the predicted state vector and covariance matrix.
 
         """
-        self.x = self.B @ self.x
-        self.P = self.B @ self.P @ self.B.T + self.Q
+        self.x = self.A @ self.x
+        self.P = self.A @ self.P @ self.A.T + self.Q
         return self.x, self.P
 
     def update(self, y):
@@ -188,23 +185,23 @@ class OnlineKalmanFilter:
         if y.ndim == 1:
             y = np.expand_dims(y, axis=1)
         if not np.isnan(y).any():
-            pred_obs = self.Z @ self.x
+            pred_obs = self.C @ self.x
             residual = y - pred_obs
-            Stmp = self.Z @ self.P @ self.Z.T + self.R
+            Stmp = self.C @ self.P @ self.C.T + self.R
             S = (Stmp + Stmp.T) / 2
             Sinv = np.linalg.inv(S)
-            K = self.P @ self.Z.T @ Sinv
+            K = self.P @ self.C.T @ Sinv
             self.x = self.x + K @ residual
-            self.P = (self.I - K @ self.Z) @ self.P
+            self.P = (self.I - K @ self.C) @ self.P
         return self.x, self.P
 
     @property
-    def B(self):
+    def A(self):
         return self._B
 
-    @B.setter
-    def B(self, B):
-        self._B = B
+    @A.setter
+    def A(self, A):
+        self._B = A
 
     @property
     def Q(self):
@@ -231,12 +228,12 @@ class OnlineKalmanFilter:
         self._V0 = V0
 
     @property
-    def Z(self):
+    def C(self):
         return self._Z
 
-    @Z.setter
-    def Z(self, Z):
-        self._Z = Z
+    @C.setter
+    def C(self, C):
+        self._Z = C
 
     @property
     def R(self):
@@ -316,12 +313,12 @@ else:
 
 # %%
 dt = 1.0 / fps
-B, Q, Qe, Z, R = getLDSmatricesForKinematics(
+A, Q, Qe, C, R = getLDSmatricesForKinematics(
     dt=dt, sigma_a=sigma_a,
     pos_x_R_std=pos_x_R_std, pos_y_R_std=pos_y_R_std)
 m0 = np.array([[m0_x, 0, 0, m0_y, 0, 0]], dtype=np.double).T
 V0 = np.diag(np.ones(len(m0))*sqrt_diag_V0_value**2)
-onlineKF = OnlineKalmanFilter(B=B, Q=Q, m0=m0, V0=V0, Z=Z, R=R)
+onlineKF = OnlineKalmanFilter(A=A, Q=Q, m0=m0, V0=V0, C=C, R=R)
 
 # %% [markdown]
 # # Infer kinematics
@@ -388,7 +385,7 @@ while cap.isOpened():
                 fontScale=annotation_font_scale, color=annotation_color)
     #
 
-    cv2_imshow("", frame)
+    cv2_imshow(frame)
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 
