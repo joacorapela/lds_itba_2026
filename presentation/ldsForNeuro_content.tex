@@ -147,6 +147,52 @@ Data} % The short title appears at the bottom of every slide, the full title is 
 
 \section{Introduction}
 
+\begin{frame}{Lecture Overview: Linear Dynamical Systems}
+    \centering
+    \begin{tikzpicture}[
+        scale=0.75, transform shape,
+        node distance=1.0cm and 0.9cm,
+        every node/.style={draw, rounded corners, align=center, font=\small, thick, inner sep=4.5pt},
+        core/.style={fill=cyan!15, draw=cyan!60!black, font=\bfseries\normalsize, minimum width=3.0cm, minimum height=0.9cm},
+        topic/.style={fill=blue!10, draw=blue!40!black, minimum width=2.0cm},
+        app/.style={fill=orange!10, draw=orange!50!black, minimum width=2.6cm},
+        data/.style={fill=green!10, draw=green!50!black, minimum width=2.6cm},
+        arrow/.style={->, >=stealth, thick, gray!70!black}
+    ]
+        % Central Node
+        \node[core] (lds) at (0,0) {Linear Dynamical Systems\\(LDS)};
+
+        % Core Topics (Top)
+        \node[topic, above left=1.1cm and 0.4cm of lds] (inference) {Inference};
+        \node[topic, above right=1.1cm and 0.4cm of lds] (learning) {Learning};
+
+        % Applications (Bottom)
+        \node[app, below left=1.1cm and 0.4cm of lds] (kinematics) {Kinematics Inference};
+        \node[app, below right=1.1cm and 0.4cm of lds] (neural) {Neural Latents Inference};
+
+        % Experimental Data / Problems (Further bottom)
+        \node[data, below=0.8cm of kinematics] (aeon) {Aeon};
+        \node[data, below=0.8cm of neural] (replay) {Online Replay Detection};
+
+        % Arrows from Central Node
+        \draw[arrow] (lds.north west) -- (inference.south);
+        \draw[arrow] (lds.north east) -- (learning.south);
+        \draw[arrow] (lds.south west) -- (kinematics.north);
+        \draw[arrow] (lds.south east) -- (neural.north);
+
+        % Arrows to Experimental Links
+        \draw[arrow] (kinematics) -- (aeon);
+        \draw[arrow] (neural) -- (replay);
+
+    \end{tikzpicture}
+
+	\pause
+    \vspace{0.4cm}
+    \textcolor{red}{\small Provide code implementing the discussed statistical methods.}
+\end{frame}
+
+\begin{comment}
+
 \begin{frame}
     \frametitle{Linear dynamical systems}
 
@@ -160,6 +206,8 @@ Data} % The short title appears at the bottom of every slide, the full title is 
     \end{tikzpicture}
 
 \end{frame}
+
+\end{comment}
 
 \begin{frame}
     \frametitle{The linear dynamical system model}
@@ -230,11 +278,11 @@ Data} % The short title appears at the bottom of every slide, the full title is 
                 \small\textit{Edwin Aldrin, July 20, 1969}\normalsize
             \end{center}
 
-        \item aircraft guidance~\citep{schmidtEtAl70},
+        \item Aircraft guidance~\citep{schmidtEtAl70},
 
         \item GPS navigation~\citep{hofmannAndLichtenegger97},
 
-        \item weather forecasting~\citep{buehnerEtAl17}.
+        \item Weather forecasting~\citep{buehnerEtAl17}.
 
     \end{itemize}
 
@@ -275,23 +323,23 @@ Data} % The short title appears at the bottom of every slide, the full title is 
 
     \begin{enumerate}
         \item \textbf{Observation} ($y_n$): noisy position estimates from
-            DeepLabCut.
+            computer vision library.
         \item \textbf{State} ($x_n$): mouse position, velocity and
             acceleration.
     \end{enumerate}
 
-%     \begin{center}
-%         \includemedia[
-%             width=4.5cm,height=4.5cm,
-%             activate=pageopen,
-%             deactivate=onclick,
-%             addresource=videos/FrameTop_2021-06-09T08-00-00_ss28_t60.avi,
-%             flashvars={
-%                 source=videos/FrameTop_2021-06-09T08-00-00_ss28_t60.avi
-%                 &autoPlay=false
-%             }
-%         ]{}{VPlayer.swf}
-%     \end{center}
+    \begin{center}
+        \includemedia[
+            width=4.5cm,height=4.5cm,
+            activate=pageopen,
+            deactivate=onclick,
+            addresource=videos/FrameTop_2021-06-09T08-00-00_ss28_t60.avi,
+            flashvars={
+                source=videos/FrameTop_2021-06-09T08-00-00_ss28_t60.avi
+                &autoPlay=true
+            }
+        ]{}{VPlayer.swf}
+    \end{center}
     \hfill\tiny joint work with Foraging Working Group
 \end{frame}
 
@@ -300,17 +348,20 @@ Data} % The short title appears at the bottom of every slide, the full title is 
     spiking activity.}
 
     \begin{enumerate}
-        \item \textbf{Observation} ($y_n$): spike counts in 100~ms bins from neural population.
+        \item \textbf{Observation} ($y_n$): spiking activity from hundreds of
+            neurons.
         \item \textbf{State} ($x_n$): low-dimensional representation of neural population spikes.
     \end{enumerate}
     \begin{columns}
     \column{0.5\textwidth}
-        \href{http://www.gatsby.ucl.ac.uk/~rapela/mitra/reports/task_2019-02-06_21-36-35_preprocessing_2019_04_05_15_04_39_ks2/v1Shaft1/figures/92275409_smoothedStates.html}{\includegraphics[width=2.5in]{{figures/92275409_smoothedStates}.png}}
+        \centering
+        \includegraphics[width=1.5in]{figures/neuropixelsWaveformsOnlyWaveforms.png}
     \column{0.5\textwidth}
-        \href{http://www.gatsby.ucl.ac.uk/~rapela/mitra/reports/task_2019-02-06_21-36-35_preprocessing_2019_04_05_15_04_39_ks2/v1Shaft1/figures/92275409_smoothedState1.html}{\includegraphics[width=2.5in]{{figures/92275409_smoothedState1}.png}} 
+        \centering
+        \includegraphics[width=2.0in]{figures/entrainedLatents.png}
 
     \end{columns}
-    \hfill\tiny joint work with Mitra Javadzadeh No
+    \hfill\tiny joint work with Emmett Thompson et al.
 
 \end{frame}
 
@@ -1505,6 +1556,67 @@ def closure():
 \begin{frame}
     \frametitle{Kinematics in two dimensions}
 
+  \begin{columns}[T] % Align columns at the top
+   
+	\small 
+    % Left Column: Equations & Matrices
+    \column{0.40\textwidth}
+      \footnotesize
+      \vspace{-1em} % Pull up slightly if needed
+      \begin{alignat*}{2}
+		\mathbf{x}_0 & \sim N(\mathbf{m}_0, V_0) &&\\
+        \mathbf{x}_n &= A\mathbf{x}_{n-1} + \mathbf{w}_n && \quad \mathbf{w}_n\sim N(\mathbf{0}, Q) \\
+        y_n &= C\mathbf{x}_{n} + v_n && \quad v_n\sim N(0, \sigma^2)
+      \end{alignat*}
+      \vspace{-0.8em}
+      \begin{align*}
+        \mathbf{x}_n&=\left[\xi[n],\dot{\xi}[n],\ddot{\xi}[n]\right]^\intercal\\[2pt]
+        y_n&\in\mathbb{R}\\[2pt]
+        A&=\begin{bmatrix}
+            1 & T & T^2\\
+            0 & 1 & T\\
+            0 & 0 & 1 
+          \end{bmatrix}\\[2pt]
+        Q&=\gamma^2\begin{bmatrix}
+            \frac{1}{4}T^4&\frac{1}{2}T^3&\frac{1}{2}T^2\\
+            \frac{1}{2}T^3&T^2&T\\
+            \frac{1}{2}T^2&T&1 
+          \end{bmatrix}\\[2pt]
+        C&=\begin{bmatrix}
+            1 & 0 & 0
+          \end{bmatrix}
+      \end{align*}
+
+    % Right Column: Figure & Link
+    \column{0.65\textwidth}
+      \footnotesize
+      \vspace{-1em} % Pull up slightly if needed
+      \begin{alignat*}{2}
+          \tilde{\mathbf{x}}_0 & \sim N(\tilde{\mathbf{m}}_0, \tilde{V}_0) &&\\
+          \tilde{\mathbf{x}}_n &= \tilde{A}\tilde{\mathbf{x}}_{n-1} +
+          \tilde{\mathbf{w}}_n && \quad \tilde{\mathbf{w}}_n\sim N(\mathbf{0}, \tilde{Q}) \\
+          \tilde{y}_n &= \tilde{C}\tilde{\mathbf{x}}_{n} + \tilde{v}_n && \quad \tilde{v}_n\sim N(0, \tilde{R})
+      \end{alignat*}
+      \vspace{-0.8em}
+      \begin{align*}
+        % \mathbf{x}_n&=\left[\xi[n],\dot{\xi}[n],\ddot{\xi}[n]\right]^\intercal\\[2pt]
+        \tilde{\mathbf{x}}_n&=\left[\xi_1[n],\dot{\xi_1}[n],\ddot{\xi_1}[n],\xi_2[n],\dot{\xi_2}[n],\ddot{\xi_2}[n]\right]^\intercal\\[2pt]
+        \tilde{A}&=\begin{bmatrix}
+            A & \mathbf{0}\\
+            \mathbf{0} & A\\
+        \end{bmatrix}\\[2pt]
+        Q&=\gamma^2\begin{bmatrix}
+            \frac{1}{4}T^4&\frac{1}{2}T^3&\frac{1}{2}T^2\\
+            \frac{1}{2}T^3&T^2&T\\
+            \frac{1}{2}T^2&T&1 
+          \end{bmatrix}\\[2pt]
+        C&=\begin{bmatrix}
+            1 & 0 & 0
+          \end{bmatrix}
+      \end{align*}
+	\normalsize 
+      
+  \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1682,8 +1794,8 @@ def closure():
             \item Learn the parameters of a neural-latents LDS using five
                 minutes of neural data while the mouse was performing the task.
 
-            \item Filter, with the learned parameters, the same five minutes
-                neural data used for learning.
+            \item Filter, with the learned parameters, using the same five
+                minutes data used for learning.
 
             \item Plot the filtered latents, with behavioral marks, showing
                 entrainment of neural activity to behavior.
