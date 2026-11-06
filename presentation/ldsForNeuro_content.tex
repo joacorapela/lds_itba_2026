@@ -210,6 +210,19 @@ Data} % The short title appears at the bottom of every slide, the full title is 
 \end{comment}
 
 \begin{frame}
+    \frametitle{Beyond this lecture}
+
+    \begin{itemize}
+        \item \textbf{Today} we will learn how to \textbf{describe brain activity}.
+
+        \item \textbf{Next week} Sebastián will teach us how to \textbf{control
+            brain activity}.  A very challenging, but super important topic.
+
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
     \frametitle{The linear dynamical system model}
 
     \begin{alignat*}{4}
@@ -1558,14 +1571,13 @@ def closure():
 
   \begin{columns}[T] % Align columns at the top
    
-	\small 
     % Left Column: Equations & Matrices
-    \column{0.40\textwidth}
-      \footnotesize
+    \column{0.47\textwidth}
+      \scriptsize
       \vspace{-1em} % Pull up slightly if needed
       \begin{alignat*}{2}
 		\mathbf{x}_0 & \sim N(\mathbf{m}_0, V_0) &&\\
-        \mathbf{x}_n &= A\mathbf{x}_{n-1} + \mathbf{w}_n && \quad \mathbf{w}_n\sim N(\mathbf{0}, Q) \\
+        \mathbf{x}_n &= A\mathbf{x}_{n-1} + \mathbf{w}_n && \quad \mathbf{w}_n\sim N(\mathbf{0}, Q(\gamma)) \\
         y_n &= C\mathbf{x}_{n} + v_n && \quad v_n\sim N(0, \sigma^2)
       \end{alignat*}
       \vspace{-0.8em}
@@ -1577,7 +1589,7 @@ def closure():
             0 & 1 & T\\
             0 & 0 & 1 
           \end{bmatrix}\\[2pt]
-        Q&=\gamma^2\begin{bmatrix}
+        Q(\gamma)&=\gamma^2\begin{bmatrix}
             \frac{1}{4}T^4&\frac{1}{2}T^3&\frac{1}{2}T^2\\
             \frac{1}{2}T^3&T^2&T\\
             \frac{1}{2}T^2&T&1 
@@ -1589,33 +1601,33 @@ def closure():
 
     % Right Column: Figure & Link
     \column{0.65\textwidth}
-      \footnotesize
+      \scriptsize
       \vspace{-1em} % Pull up slightly if needed
       \begin{alignat*}{2}
           \tilde{\mathbf{x}}_0 & \sim N(\tilde{\mathbf{m}}_0, \tilde{V}_0) &&\\
           \tilde{\mathbf{x}}_n &= \tilde{A}\tilde{\mathbf{x}}_{n-1} +
-          \tilde{\mathbf{w}}_n && \quad \tilde{\mathbf{w}}_n\sim N(\mathbf{0}, \tilde{Q}) \\
+          \tilde{\mathbf{w}}_n && \quad \tilde{\mathbf{w}}_n\sim N(\mathbf{0},\tilde{Q}(\gamma_1,\gamma_2))\\
           \tilde{y}_n &= \tilde{C}\tilde{\mathbf{x}}_{n} + \tilde{v}_n && \quad \tilde{v}_n\sim N(0, \tilde{R})
       \end{alignat*}
       \vspace{-0.8em}
       \begin{align*}
         % \mathbf{x}_n&=\left[\xi[n],\dot{\xi}[n],\ddot{\xi}[n]\right]^\intercal\\[2pt]
         \tilde{\mathbf{x}}_n&=\left[\xi_1[n],\dot{\xi_1}[n],\ddot{\xi_1}[n],\xi_2[n],\dot{\xi_2}[n],\ddot{\xi_2}[n]\right]^\intercal\\[2pt]
+        \tilde{\mathbf{y}}_n&=\left[y_{1n}, y_{2n}\right]\\[8pt]
         \tilde{A}&=\begin{bmatrix}
             A & \mathbf{0}\\
             \mathbf{0} & A\\
-        \end{bmatrix}\\[2pt]
-        Q&=\gamma^2\begin{bmatrix}
-            \frac{1}{4}T^4&\frac{1}{2}T^3&\frac{1}{2}T^2\\
-            \frac{1}{2}T^3&T^2&T\\
-            \frac{1}{2}T^2&T&1 
-          \end{bmatrix}\\[2pt]
-        C&=\begin{bmatrix}
-            1 & 0 & 0
-          \end{bmatrix}
+        \end{bmatrix}\\[12pt]
+        \tilde{Q}(\gamma_1,\gamma_2)&=\begin{bmatrix}
+              Q(\gamma_1) & \mathbf{0}\\
+              \mathbf{0} & Q(\gamma_2)
+        \end{bmatrix}\\[4pt]
+        \tilde{C}&=\begin{bmatrix}
+            1 & 0 & 0 & 0 & 0 & 0\\
+            0 & 0 & 0 & 1 & 0 & 0
+        \end{bmatrix}
       \end{align*}
-	\normalsize 
-      
+	  \normalsize 
   \end{columns}
 \end{frame}
 
