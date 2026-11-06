@@ -116,9 +116,8 @@
 Data} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Joaqu\'{i}n Rapela} % Your name
-\institute[GCNU, UCL] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+\institute[] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
-    Gatsby Computational Neuroscience Unit\\University College London % Your institution for the title page
 }
 \date{November 6, 2026} % Date, can be changed to a custom date
 
@@ -126,6 +125,7 @@ Data} % The short title appears at the bottom of every slide, the full title is 
   {
      \begin{frame}<beamer>
      \frametitle{Contents}
+         \scriptsize
          \tableofcontents[currentsection,hideothersubsections]
      \end{frame}
   }
@@ -1008,212 +1008,10 @@ Notes:
 \begin{frame}
     \frametitle{Filtered mean and covariance}
 
-    \scriptsize
-    \begin{claim}
-        $\mathbf{x}_{n|n}=\mathbf{x}_{n|n-1}+K_n\tilde{\mathbf{y}}_n$ and
-        $P_{n|n}=(I-K_nC)P_{n|n-1}$.
-        \label{claim:filteringMeanAndCov}
-    \end{claim}
+    Derivation of the filtered mean and covariance are a little more involved.
+    Details can be found
+    \href{https://github.com/joacorapela/ssm/blob/master/docs/inference/ldsInference.pdf}{here}.
 
-    \begin{proof}\renewcommand{\qedsymbol}{}
-
-    Define the random variables
-    $\mathbf{x}=\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}$ and
-    $\mathbf{y}=\mathbf{y}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}$. Then
-    $\mathbf{x}|\mathbf{y}=\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_n$ and
-    the mean and covariance that we want to find, $\mathbf{x}_{n|n}$ and
-    $P_{n|n}$, are those of $\mathbf{x}|\mathbf{y}$.  Thus, we want to compute
-    the mean, $\mu_{\mathbf{x}|\mathbf{y}}=\mathbf{x}_{n|n}$, and covariance,
-    $\Sigma_{\mathbf{x}|\mathbf{y}}=P_{n|n}$, of $\mathbf{x}|\mathbf{y}$.
-
-    Because $\mathbf{x}_n$ and $\mathbf{y}_n$ are jointly Gaussian, then
-    $\mathbf{x}$ and $\mathbf{y}$ are also jointly Gaussian. Then, $\mu_{\mathbf{x}|\mathbf{y}}$
-    and $\Sigma_{\mathbf{x}|\mathbf{y}}$ are \citep[][Chapter 2]{bishop06}
-
-    \begin{align}
-        \mu_{\mathbf{x}|\mathbf{y}}&=\mu_{\mathbf{x}} +
-        \Sigma_{\mathbf{x}\mathbf{y}}\Sigma_{\mathbf{y}\mathbf{y}}^{-1}(\mathbf{y}_n-\mu_{\mathbf{y}})\label{eq:muxgy}\\
-        \Sigma_{\mathbf{x}|\mathbf{y}}&=\Sigma_{\mathbf{x}\mathbf{x}}-\Sigma_{\mathbf{x}\mathbf{y}}\Sigma_{\mathbf{y}\mathbf{y}}^{-1}\Sigma_{\mathbf{y}\mathbf{x}}\label{eq:sigmaxgy}
-    \end{align}
-
-    Thus, to compute $\mu_{\mathbf{x}|\mathbf{y}}$ and $\Sigma_{\mathbf{x}|\mathbf{y}}$ we need to calculate
-    $\mu_{\mathbf{x}}$, $\mu_{\mathbf{y}}$, $\Sigma_{\mathbf{x}\mathbf{x}}$, $\Sigma_{\mathbf{x}\mathbf{y}}$ and $\Sigma_{\mathbf{y}\mathbf{y}}$.
-
-        % \alt<3>{\qedhere}{\phantom\qedhere}
-
-    \end{proof}
-
-    \normalsize
-\end{frame}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{proof}\renewcommand{\qedsymbol}{}
-    \begin{align}
-        \mu_{\mathbf{x}}&=E\{\mathbf{x}\}=E\{\mathbf{x}_n|\mathbf{y}_1,\ldots\mathbf{y}_{n-1}\}=\mathbf{x}_{n|n-1}\label{eq:mux}\\
-        \mu_{\mathbf{y}}&=E\{\mathbf{y}\}=E\{\mathbf{y}_n|\mathbf{y}_1,\ldots\mathbf{y}_{n-1}\}=E\{C\mathbf{x}_n+\mathbf{v}_n|\mathbf{y}_1,\ldots\mathbf{y}_{n-1}\}=\nonumber\\
-             &=CE\{\mathbf{x}_n|\mathbf{y}_1,\ldots\mathbf{y}_{n-1}\}+E\{\mathbf{v}_n|\mathbf{y}_1,\ldots\mathbf{y}_{n-1}\}=C\mathbf{x}_{n|n-1}+E\{\mathbf{v}_n\}\nonumber\\
-             &=C\mathbf{x}_{n|n-1}=\mathbf{y}_{n|n-1}\label{eq:muy}
-    \end{align}
-        % \alt<3>{\qedhere}{\phantom\qedhere}
-    \end{proof}
-
-    Notes:
-
-    \begin{itemize}
-        \item The fifth equality in Eq.~\ref{eq:muy} uses the definition
-            of $\mathbf{x}_{n|n-1}$ and the fact that $\mathbf{v}_n$ is
-            independent of previous observations.
-
-        \item The last equality in Eq.~\ref{eq:muy} holds because the mean of
-            $\mathbf{v}_n$ is zero.
-    \end{itemize}
-
-    \normalsize
-\end{frame}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{proof}\renewcommand{\qedsymbol}{}
-    \begin{align}
-        \Sigma_{\mathbf{y}\mathbf{y}}&=\text{Cov}(\mathbf{y}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{Cov}(C\mathbf{x}_n+\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{Cov}(C\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})+\text{Cov}(\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=C\ \text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\ C^\intercal+\text{Cov}(\mathbf{v}_n)\label{eq:c3Sigmayyl4}\\
-                                     &=CP_{n|n-1}C^\intercal+R\label{eq:sigmayy}
-    \end{align}
-    \end{proof}
-
-Notes:
-
-\begin{itemize}
-
-    \item As in Eq.~\ref{eq:c2l3}, Eq.~\ref{eq:c3Sigmayyl4} holds by the
-        property
-        $\text{Cov}\{A\mathbf{x}\}=A\ \text{Cov}\{\mathbf{x}\}\ A^\intercal$ and
-        because $\mathbf{v}_n$ is independent of previous observations.
-
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{proof}\renewcommand{\qedsymbol}{}
-    \begin{align}
-        \Sigma_{\mathbf{x}\mathbf{y}}&=\text{cCov}(\mathbf{x}_n,\mathbf{y}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{cCov}(\mathbf{x}_n,C\mathbf{x}_n+\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{cCov}(\mathbf{x}_n,C\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})+\text{cCov}(\mathbf{x}_n,\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\label{eq:c3Sigmaxyl3}\\
-                                     &=\text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})C^\intercal+0\label{eq:c3Sigmaxyl4}\\
-                                     &=P_{n|n-1}C^\intercal\label{eq:sigmaxy}
-    \end{align}
-    \end{proof}
-
-    Notes:
-
-    \begin{itemize}
-        \item the first term in Eq.~\ref{eq:c3Sigmaxyl4} arises from the first
-            term of Eq.~\ref{eq:c3Sigmaxyl3} since
-
-            \begin{align*}
-                \text{cCov}(\mathbf{x}_n,C\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})&=E\{(\mathbf{x}_n-\mu_\mathbf{x})(C\mathbf{x}_n-C\mu_{\mathbf{x}})^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                            &=E\{(\mathbf{x}_n-\mu_\mathbf{x})(\mathbf{x}_n-\mu_{\mathbf{x}})^\intercal C^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                            &=E\{(\mathbf{x}_n-\mu_\mathbf{x})(\mathbf{x}_n-\mu_{\mathbf{x}})^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}C^\intercal\\
-                                                                                            &=\text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})C^\intercal
-            \end{align*}
-
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{proof}\renewcommand{\qedsymbol}{}
-    \begin{align}
-        \Sigma_{\mathbf{x}\mathbf{y}}&=\text{cCov}(\mathbf{x}_n,\mathbf{y}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{cCov}(\mathbf{x}_n,C\mathbf{x}_n+\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\nonumber\\
-                                     &=\text{cCov}(\mathbf{x}_n,C\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})+\text{cCov}(\mathbf{x}_n,\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})\label{eq:c3Sigmaxyl3}\\
-                                     &=\text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})C^\intercal+0\label{eq:c3Sigmaxyl4}\\
-                                     &=P_{n|n-1}C^\intercal\label{eq:sigmaxy}\\
-        \Sigma_{\mathbf{x}\mathbf{x}}&=\text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})=P_{n|n-1}\label{eq:sigmaxx}
-    \end{align}
-    \end{proof}
-
-    Notes:
-
-    \begin{itemize}
-        \item the first term in Eq.~\ref{eq:c3Sigmaxyl4} arises from the first
-            term of Eq.~\ref{eq:c3Sigmaxyl3} since
-
-            \begin{align*}
-                \text{cCov}(\mathbf{x}_n,C\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})&=E\{(\mathbf{x}_n-\mu_\mathbf{x})(C\mathbf{x}_n-C\mu_{\mathbf{x}})^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                            &=E\{(\mathbf{x}_n-\mu_\mathbf{x})(\mathbf{x}_n-\mu_{\mathbf{x}})^\intercal C^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                            &=E\{(\mathbf{x}_n-\mu_\mathbf{x})(\mathbf{x}_n-\mu_{\mathbf{x}})^\intercal|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}C^\intercal\\
-                                                                                            &=\text{Cov}(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})C^\intercal
-            \end{align*}
-
-    \end{itemize}
-\end{frame}
-
-\begin{comment}
-\end{comment}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{itemize}
-
-        \item the second term in Eq.~\ref{eq:c3Sigmaxyl4} arises from the
-            second
-            term of Eq.~\ref{eq:c3Sigmaxyl3} since
-
-            \begin{align*}
-                \text{cCov}(\mathbf{x}_n,\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1})&=E\{(\mathbf{x}_n-\mathbf{x}_{n|n-1})\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                           &=E\{(\mathbf{x}_n-\mathbf{x}_{n|n-1})|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}E\{\mathbf{v}_n|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}\\
-                                                                                           &=E\{(\mathbf{x}_n-\mathbf{x}_{n|n-1})|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}E\{\mathbf{v}_n\}\\
-                                                                                           &=E\{(\mathbf{x}_n-\mathbf{x}_{n|n-1})|\mathbf{y}_1,\ldots,\mathbf{y}_{n-1}\}0\\
-                                                                                           &=0
-            \end{align*}
-
-            the second line follows from the first one because $\mathbf{v}_n$
-            is independent of $\mathbf{x}_n$, and the third line follows from
-            the second one because $\mathbf{v}_n$ is independent of previous
-            observations.
-
-    \end{itemize}
-    \normalsize
-\end{frame}
-
-\begin{frame}
-    \frametitle{Filtered mean and covariance (cont)}
-    \scriptsize
-
-    \begin{proof}
-    Having calculated $\mu_{\mathbf{x}}$, $\mu_{\mathbf{y}}$,
-    $\Sigma_{\mathbf{x}\mathbf{x}}$, $\Sigma_{\mathbf{x}\mathbf{y}}$ and
-    $\Sigma_{\mathbf{y}\mathbf{y}}$ we now use Eqs.~\ref{eq:muxgy},
-    \ref{eq:sigmaxgy}, \ref{eq:mux},  \ref{eq:muy},  \ref{eq:sigmayy},
-    \ref{eq:sigmaxy}, and \ref{eq:sigmaxx} to  
-    obtain $\mathbf{x}_{n|n}$ and $P_{n|n}$.
-
-    \begin{align*}
-        \mathbf{x}_{n|n}=\mu_{\mathbf{x}|\mathbf{y}}&=\mu_{\mathbf{x}} + \Sigma_{\mathbf{x}\mathbf{y}}\Sigma_{\mathbf{y}\mathbf{y}}^{-1}(\mathbf{y}_n-\mu_{\mathbf{y}})\\
-                                                    &=\mathbf{x}_{n|n-1}+P_{n|n-1}C^\intercal S_n^{-1}(\mathbf{y}_n-\mathbf{y}_{n|n-1})\\
-                                                    &=\mathbf{x}_{n|n-1}+K_n\tilde{\mathbf{y}_n}\\
-        P_{n|n}=\Sigma_{\mathbf{x}|\mathbf{y}}&=\Sigma_{\mathbf{x}\mathbf{x}}-\Sigma_{\mathbf{x}\mathbf{y}}\Sigma_{\mathbf{y}\mathbf{y}}^{-1}\Sigma_{\mathbf{y}\mathbf{x}}\\
-                                              &=P_{n|n-1}-P_{n|n-1}C^\intercal S_n^{-1}CP_{n|n-1}\\
-                                              &=(I-P_{n|n-1}C^\intercal S_n^{-1}C)P_{n|n-1}\\
-                                              &=(I-K_nC)P_{n|n-1}
-    \end{align*}
-    \end{proof}
-    \normalsize
 \end{frame}
 
 \section{Learning}
@@ -1557,6 +1355,67 @@ def closure():
     \end{columns}
 \end{frame}
 
+\begin{frame}{Maximisation with Expectation Maximization (EM)}
+
+    Given a joint distribution $p(\mathbf{X},\mathbf{Y}|\theta)$ over latent
+    variables $X=\{\mathbf{x}_n\}_{n=1}^N$ and observed variables
+    $Y=\{\mathbf{y}_n\}_{n=1}^N$, governed by parameters $\theta$, the goal is
+    to maximise the likelihood function $\log p(\mathbf{Y}|\theta)$ with
+    respect to $\theta$.
+
+    \begin{enumerate}
+        \item Choose an initial setting for parameters $\theta^{old}$,
+
+        \item E step: Evaluate $p(\mathbf{X}|\mathbf{Y},\theta^{old})$
+
+        \item M step: Evaluate $\theta^{new}$ given by:
+
+            \begin{align*}
+                \theta^{new}=\argmax_{\theta}E_{p(\mathbf{X}|\mathbf{Y},\theta^{old})}\left\{\log
+                p(\mathbf{X},\mathbf{Y}|\theta)\right\}
+            \end{align*}
+
+        \item If not convered $\theta^{old}\leftarrow\theta^{new}$ and go to
+            step 2.
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks,fragile]
+    \frametitle{Notes on EM}
+
+    \small
+    \begin{enumerate}
+
+        \item The core EM simplification: moving the log inside the integral
+            generally leads to close-form maximum solutions.
+
+            \begin{align*}
+                \log p(\mathbf{Y}|\theta)&=\log\int p(\mathbf{Y},\mathbf{X}|\theta)d\mathbf{X}\\
+                E_{p(\mathbf{X}|\mathbf{Y},\theta^{old})}\left\{\log p(\mathbf{X},\mathbf{Y}|\theta)\right\}&=\int\log p(\mathbf{X},\mathbf{Y}|\theta)p(\mathbf{X}|\mathbf{Y},\theta^{old})d\mathbf{X}
+            \end{align*}
+
+        \item Every EM iteration increases the marginal likelihood
+            $p(\mathbf{Y}|\theta)$.
+
+        \item No learning rate hyper-paramaeter.
+
+        \item Difficult to derive, but easy to implement.
+
+        \item Preservation of constraints (e.g., in LDS the covariance matrices
+            $Q$ and $R$ must remain positive semi-definite).
+
+        \item Robustness to flat or ill-conditioned optimisation landscapes.
+
+        \item I performed \href{https://joacorapela.github.io/ssm/auto\_examples/index.html\#kinematics-inference}{empirical comparisons between LBFGS and EM} but did not observe major advantages of one method over the other.
+
+        \item \citet{bishop06} contains an excellent presentation of EM.
+
+    \end{enumerate}
+    \normalsize
+
+\end{frame}
+
 \section{Aeon: Naturalistic, Long-Duration and Continual Neuroscience Experimentation}
 
 \begin{frame}
@@ -1845,9 +1704,9 @@ def closure():
     \end{columns}
 \end{frame}
 
-\section{Remarks}
+\section{Final remarks}
 
-\begin{frame}
+\begin{frame}[allowframebreaks,fragile]
     \frametitle{Summary}
     Today we learned
 
@@ -1860,16 +1719,32 @@ def closure():
         \item How to infer distributions of hidden states from measurements
             (i.e., Kalman filtering and smoothing),
 
-        \item How to implement LDSs in Python.
- 
+        \item How to learn parameters in LDS with a brute force methods, with a
+            gradient-based method, and with Expectation Maximisation.
+
+        \item How to implement inference and learning for LDS in Python.
+
+        \item What the Aeon platform for naturalistic, long-duration and
+            continual experimentation is.
+
+        \item A glimpse on computer vision with Open-CV, and how to do online
+            inference with LDS.
+
+        \item About large-channel count Neuropixels recordings.
+
+        \item How to use LDS to reduce the dimensionality of Neuropixels
+            recordings.
+
+        \item What neural replay is.
+
+        \item How to use LDS to infer neural replay with Neuropixels recordings
+            from the striatum.
     \end{enumerate}
 
     \onslide<2-> {
     Today we did NOT learn
 
     \begin{enumerate}
-
-        \item how to learn parameters of LDSs,
 
         \item non-linear and non-Gaussian extensions of LDSs (e.g., extended KF,
             particle filter, assumed density filter, Poisson LDS).
@@ -1880,20 +1755,21 @@ def closure():
 \end{frame}
 
 \begin{frame}
-    \frametitle{A few new concepts in this lecture wrt previous
-    neuroinformatics ones}
+    \frametitle{Next class}
 
-    \begin{enumerate}[<+->]
+    Sebastián Martinez will:
 
-        \item behavioural data (vs ephys),
+    \begin{enumerate}
 
-        \item time series models (vs idd assumption),
+        \item Move beyond observing to controlling neural activity,
 
-        \item probabilistic (vs deterministic) modelling,
+        \item Discuss nonlinear state-space models.
 
-        \item Bayesian (vs frequentist) statistics,
+        \item Elaborate on the issue of understanding/controlling the brain at
+            the level of single neurons versus populations.
 
-        \item online (vs batch) algorithms.
+        \item Propose a method to control neural activity with optogenetic
+            stimulation.
 
     \end{enumerate}
 \end{frame}
@@ -1901,10 +1777,25 @@ def closure():
 \begin{frame}
     \frametitle{Want to learn more?}
 
-    \begin{center}
-        \includegraphics[width=1.5in]{figures/durbinAndKoopman2ndEd.jpg}
-    \end{center}
-    \hfill\citet{durbinAndKoopman12}
+    \begin{columns}[T]
+        % Left Column: Practical Instructions & Colab Link
+        \column{0.48\textwidth}
+        State-space models:
+        \vspace{1.7cm}
+
+        \centering
+        \includegraphics[width=1.0in]{figures/durbinAndKoopman2ndEd.jpg}
+
+        \hfill\footnotesize\citet{durbinAndKoopman12}\normalsize
+        \column{0.50\textwidth}
+        Probabilistic machine learning (including EM):
+        \vspace{1cm}
+
+        \centering
+        \includegraphics[width=1.15in]{figures/bishop06.jpg}
+
+        \hfill\footnotesize\citet{bishop06}\normalsize
+    \end{columns}
 
 \end{frame}
 
