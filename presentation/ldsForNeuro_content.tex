@@ -61,7 +61,7 @@
 \hypersetup{colorlinks=true,linkcolor=red,filecolor=magenta,urlcolor=cyan}
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
-\usepackage{natbib}
+\usepackage[authoryear]{natbib}
 \usepackage{apalike}
 \usepackage{comment}
 \usepackage{bm}
@@ -315,7 +315,7 @@ Data} % The short title appears at the bottom of every slide, the full title is 
     \frametitle{Example application of linear dynamical systems in neuroscience}
 
     Decoding hand kinematics from motor cortex neural
-    activity~\citep{wuEtAl06}.
+    activity.
 %
     \textbf{Observation} ($y_n$): neural activity recorded from motor cortex of
     monkeys.
@@ -327,12 +327,12 @@ Data} % The short title appears at the bottom of every slide, the full title is 
             \includegraphics[width=4in]{figures/wuEtAl06_fig3a.png}
         \end{center}
     \end{figure}
-    \hfill\citet{wuEtAl06}
+    \hfill\tiny\citet{wuEtAl06}
 
 \end{frame}
 
 \begin{frame}
-    \frametitle{SWC: inferring mouse kinematics from video recordings.}
+    \frametitle{SWC: Inferring mouse kinematics from video recordings.}
 
     \begin{enumerate}
         \item \textbf{Observation} ($y_n$): noisy position estimates from
@@ -353,7 +353,8 @@ Data} % The short title appears at the bottom of every slide, the full title is 
             }
         ]{}{VPlayer.swf}
     \end{center}
-    \hfill\tiny joint work with Foraging Working Group
+    \hfill\tiny Video recorded with the Aeon platform,
+    see~\citet{campagnerEtAl25}.
 \end{frame}
 
 \begin{frame}
@@ -374,7 +375,7 @@ Data} % The short title appears at the bottom of every slide, the full title is 
         \includegraphics[width=2.0in]{figures/entrainedLatents.png}
 
     \end{columns}
-    \hfill\tiny joint work with Emmett Thompson et al.
+    \hfill\tiny\citet{thompsonEtAl26}
 
 \end{frame}
 
@@ -407,7 +408,9 @@ Data} % The short title appears at the bottom of every slide, the full title is 
             1 & 0 &0
         \end{bmatrix}
     \end{align*}
-
+    \vspace{-1.0cm}
+    \par
+    \hfill\tiny Details at~\citet{rapela26}.
     \normalsize
     \note {
 Starting with the equations of motion of a single particle, here I derive the
@@ -437,6 +440,7 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
         \dot{\xi}(t+T)&=\dot{\xi}(t)+\ddot{\xi}(t)T\label{eq:velTaylor2}\\
         \ddot{\xi}(t+T)&=\ddot{\xi}(t)\label{eq:accTaylor2}
     \end{align}
+    \hfill\tiny Details at~\citet{rapela26}.
 
 \end{frame}
 
@@ -460,6 +464,7 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
         \dot{\xi}(k+1)&=\dot{\xi}(k)+\ddot{\xi}(k)T+v(k)T\label{eq:velDWPA}\\
         \ddot{\xi}(k+1)&=\ddot{\xi}(k)+v(k)\label{eq:accDWPA}
     \end{align}
+    \hfill\tiny Details at~\citet{rapela26}.
 
 \end{frame}
 
@@ -489,6 +494,8 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
 
     We still need to find the covariance of $w(k)$.
 
+    \hfill\tiny Details at~\citet{rapela26}.
+
 \end{frame}
 
 \begin{frame}
@@ -515,6 +522,7 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
         \end{bmatrix}=Q
         \label{eq:Q}
     \end{align}
+    \hfill\tiny Details at~\citet{rapela26}.
 
 \end{frame}
 
@@ -1031,7 +1039,7 @@ Notes:
     \vspace{0.2em}
 
     \begin{itemize}
-        \item Next, we will discuss a \textbf{maximum likelihood} method, using gradient ascent, to learn model parameters.
+        \item Next, we will discuss \textbf{maximum likelihood} methods to learn model parameters.
     \end{itemize}
 \end{frame}
 
@@ -1079,8 +1087,7 @@ to estimate LDS model parameters.
     \end{tabular}
 \end{frame}
 
-\begin{frame}{Likelihood Function for LDS}
-    \small
+\begin{frame}{Likelihood Function for LDS (proof sketch 1/2)}
     \setlength{\jot}{1pt} % Tighten the vertical spacing between alignment lines
 
 	\begin{align*}
@@ -1092,10 +1099,33 @@ to estimate LDS model parameters.
                        \left[\log|S_n|+\tilde{\mathbf{y}}_n^\intercal S_n^{-1}\tilde{\mathbf{y}}_n\right]\\
 	\end{align*}
 
-    \vspace{-0.5em}
-    \centering
-    \textcolor{red}{$\log L(\theta)$ can be computed inside the Kalman filtering
-    function}.
+\end{frame}
+
+\begin{frame}{Likelihood Function for LDS (proof sketch 2/2)}
+
+    \small
+    \begin{enumerate}
+
+        \item The first equality in the first line of the previous proof sketch
+            follows from the definition of $L(\theta)$.
+
+        \item The second equality in the first line holds because the
+            innovations
+            are a linear transformation of previous observations, where the
+            diagonal of the Jacobian is a vector of ones, and thus its
+            determinant is one.
+
+        \item The last equality in the first line is true because the
+            innovations are iid.
+
+        \item The last equality in the second line follows because the
+            residuals are a linear combination of two Normals, and therefore
+            also Normal, with mean zero and covariance $S_n$ (the covariance
+            proof was given in the Kalman filter demonstration).
+
+        \item $\log L(\theta)$ can be computed inside the Kalman filtering function.
+
+    \end{enumerate}
 
 \end{frame}
 
@@ -1151,9 +1181,8 @@ $\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
             \item \textbf{Expectation-Maximisation (EM):} Iterative algorithm tailored for latent-variable models (crucial for LDS via the Baum-Welch algorithm).
             \item \textbf{Black-box / Global methods:} Genetic algorithms, grid/brute-force search, and sampling-based methods.
         \end{itemize}
-        
-        \item \textbf{Today's focus:} We will explore a brute-force approach and a gradient ascent implementation to build intuition.
     \end{itemize}
+    \hfill\tiny\citet{bishop06}
     
 \end{frame}
 
@@ -1209,6 +1238,8 @@ $\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
             \EndIf
         \EndWhile
     \end{algorithmic}
+    \hfill\tiny\citet{nocedalAndWright06}
+
 \end{frame}
 
 \begin{frame}{Notes: Maximisation with Gradient-Based Methods}
@@ -1226,8 +1257,7 @@ $\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
     \end{enumerate}
 
     \vfill
-    \tiny \color{gray}
-    Reference: Nocedal, J., \& Wright, S. J. (1999). \textit{Numerical optimization}. Springer New York.
+    \hfill\tiny\citet{nocedalAndWright06}
 \end{frame}
 
 \begin{frame}[allowframebreaks,fragile]
@@ -1378,13 +1408,14 @@ def closure():
         \item If not convered $\theta^{old}\leftarrow\theta^{new}$ and go to
             step 2.
     \end{enumerate}
+    \hfill\tiny\citet{bishop06}
 
 \end{frame}
 
 \begin{frame}[allowframebreaks,fragile]
     \frametitle{Notes on EM}
 
-    \small
+    \footnotesize
     \begin{enumerate}
 
         \item The core EM simplification: moving the log inside the integral
@@ -1409,10 +1440,49 @@ def closure():
 
         \item I performed \href{https://joacorapela.github.io/ssm/auto\_examples/index.html\#kinematics-inference}{empirical comparisons between LBFGS and EM} but did not observe major advantages of one method over the other.
 
-        \item \citet{bishop06} contains an excellent presentation of EM.
+        % \item \citet{bishop06} contains an excellent presentation of EM.
 
     \end{enumerate}
     \normalsize
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Python code and examples}
+
+	A Python repository implementing functionality for inference and learning
+	with linear dynamical systems, plus applicatios to model behavioral and
+	neural recordings, offline and online, can be found
+	\href{https://github.com/joacorapela/ssm}{here}.
+
+\end{frame}
+
+\begin{frame}[fragile]{Python Code and Examples}
+    \begin{block}{Repository Overview}
+        The \texttt{ssm} library provides Linear Dynamical Systems functionality for:
+        \begin{itemize}
+            \item \textbf{Inference} (e.g., filtering, smoothing, forecasting, missing observations)
+			\item \textbf{Learning} (e.g., gradient-based and EM maxium likelihood)
+            \item \textbf{Behavioral Applications} (e.g., offline and online kinematics inference)
+            \item \textbf{Neural Applications} (e.g., neural latents inference)
+        \end{itemize}
+    \end{block}
+
+    \vspace{0.4cm}
+    \begin{center}
+        \begin{minipage}{0.7\textwidth}
+            \centering
+            \colorbox{cyan!10}{%
+                \parbox{0.95\textwidth}{%
+                    \centering
+                    \vspace{0.2cm}
+                    \textbf{GitHub Repository:}\\
+                    \href{https://github.com/joacorapela/ssm}{\texttt{github.com/joacorapela/ssm}}
+                    \vspace{0.2cm}
+                }%
+            }
+        \end{minipage}
+    \end{center}
 
 \end{frame}
 
@@ -1420,13 +1490,17 @@ def closure():
 
 \begin{frame}
     \frametitle{Aeon: Naturalistic, Long-Duration and Continual Neuroscience Experimentation}
-
-    \includegraphics[width=4in]{figures/aeon.png}
+   
+    \begin{figure}
+        \centering
+        \includegraphics[width=3.5in]{figures/aeon.png}
+    \end{figure}
+    \hfill\tiny\citet{campagnerEtAl25}
 
 \end{frame}
 
 \begin{frame}
-    \frametitle{Kinematics in two dimensions}
+    \frametitle{Kinematics in one vs.\ two dimensions}
 
   \begin{columns}[T] % Align columns at the top
    
@@ -1526,6 +1600,7 @@ def closure():
 
         \centering
         \includegraphics[width=0.85\linewidth]{figures/aeonOnlineKinematicsInference.png}\\[0.15em]
+        \hfill\tiny\citet{campagnerEtAl25}
 
     \end{columns}
 \end{frame}
@@ -1537,12 +1612,7 @@ def closure():
         \centering
         \includegraphics[width=4in]{figures/singleNeuronVsPopulation.png}
     \end{figure}
-    
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Saxena et al., \textit{eLife} (2022)
-    \end{flushright}
+    \hfill\tiny\citet{saxenaAndCunningham19}
 
 \end{frame}
 
@@ -1552,12 +1622,7 @@ def closure():
 		\centering
 		\includegraphics[width=2in]{figures/neuropixelsWaveformsOnlyWaveforms.png}
 	\end{figure}
-
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Cunningham and Yu \textit{Nature neuroscience} (2014)
-    \end{flushright}
+    \hfill\tiny\citet{cunninghamAndYu14}
 
 \end{frame}
 
@@ -1574,12 +1639,7 @@ def closure():
         \centering
         \includegraphics[width=1.75in]{figures/thompsonEtAl26_1a.png}
     \end{figure}
-    
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Thompson et al., \textit{Nature Neuroscience} (2026), Fig. 1a
-    \end{flushright}
+    \hfill\tiny\citet{thompsonEtAl26}
 
 \end{frame}
 
@@ -1588,13 +1648,8 @@ def closure():
         \centering
         \includegraphics[width=1.5in]{figures/thompsonEtAl26_2a.png}
     \end{figure}
+    \hfill\tiny\citet{thompsonEtAl26}
     
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Thompson et al., \textit{Nature Neuroscience} (2026), Fig. 2a
-    \end{flushright}
-
 \end{frame}
 
 \begin{frame}{Thompson et al., 2026: Behavioural neural sequences}
@@ -1602,13 +1657,8 @@ def closure():
         \centering
         \includegraphics[width=2.0in]{figures/thompsonEtAl26_2cde.png}
     \end{figure}
+    \hfill\tiny\citet{thompsonEtAl26}
     
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Thompson et al., \textit{Nature Neuroscience} (2026), Fig. 2c-e
-    \end{flushright}
-
 \end{frame}
 
 \begin{frame}{Thompson et al., 2026: Sleep neural sequences}
@@ -1616,13 +1666,8 @@ def closure():
         \centering
         \includegraphics[width=4.0in]{figures/thompsonEtAl26_3ab.png}
     \end{figure}
+    \hfill\tiny\citet{thompsonEtAl26}
     
-    \vspace{-0.5em}
-    \begin{flushright}
-        \tiny \color{gray}
-        Thompson et al., \textit{Nature Neuroscience} (2026), Fig. 3a-b
-    \end{flushright}
-
 \end{frame}
 
 \begin{frame}{What is the function of neural replay?}
@@ -1803,7 +1848,7 @@ def closure():
 \frametitle{References}
 \tiny{
 \bibliographystyle{apalike}
-\bibliography{machinelearning,epilepsy,stats,gaussianProcesses,eeg,latentVariableModels,linearDynamicalSystems}
+\bibliography{machinelearning,epilepsy,stats,gaussianProcesses,eeg,latentVariableModels,linearDynamicalSystems,longDurationExperimentation,replay,tracking,signalProcessing,largeScaleRecordings}
 }
 \end{frame}
 
