@@ -108,6 +108,26 @@
  {\end{matrix}\bm{]}}
 
 
+% Fix the left content panel
+\makeatletter
+\setbeamertemplate{sidebar \beamer@sidebarside}{
+  \beamer@tempdim=\beamer@sidebarwidth%
+  \advance\beamer@tempdim by -6pt%
+  \insertverticalnavigation{\beamer@sidebarwidth}%
+  \vfill
+  \ifx\beamer@sidebarside\beamer@lefttext%
+  \else%
+    \usebeamercolor{normal text}%
+    \llap{\usebeamertemplate***{navigation symbols}\hskip0.1cm}%
+    \vskip2pt%
+  \fi%
+}
+\makeatother
+
+% Customize button background, text color, and border
+\setbeamercolor{button}{bg=structure.fg!20, fg=black}
+\setbeamercolor{button border}{fg=structure.fg!50!black}
+
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -379,7 +399,7 @@ Data} % The short title appears at the bottom of every slide, the full title is 
 
 \end{frame}
 
-\section{Design of a linear dynamical system for tracking}
+\section{Design of an linear dynamical system for tracking}
 
 \begin{frame}
     \frametitle{Discrete Wiener Process Acceleration (DWPA) model for tracking
@@ -526,7 +546,7 @@ dimensions (Section~\ref{sec:dwpaModel2D}).
 
 \end{frame}
 
-\begin{frame}{Practical: sample from a DWPA model for tracking}
+\begin{frame}[label=plotSimulated1DTrajectoryDWPA]{Practical: sample from a DWPA model for tracking}
   \begin{columns}[T] % Align columns at the top
    
 	\small 
@@ -754,7 +774,7 @@ The Kalman filtering algorithm calculates the prediction and filtering means and
     observation, I can compute the filtering distribution.
 }
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotBatchFilterSimulated1DTrajectoryDWPA]
     \frametitle{Practical: Kalman filtering}
 
     \begin{columns}[T]
@@ -832,7 +852,7 @@ The Kalman smoother algorithm estimates the smoothed means and
 
 }
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotBatchSmoothSimulated1DTrajectoryDWPA]
     \frametitle{Practical: Kalman smoothing}
 
     \begin{columns}[T]
@@ -880,7 +900,7 @@ setting the filtered estimates to their predicted values: $\mathbf{x}_{m|m} =
 \end{enumerate}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotBatchForecastSimulated1DTrajectoryDWPA]
     \frametitle{Practical: Forecasting}
 
     \begin{columns}[T]
@@ -921,7 +941,7 @@ setting the filtered estimates to their predicted values: $\mathbf{x}_{m|m} =
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotBatchMissingSimulated1DTrajectoryDWPA]
     \frametitle{Practical: Missing Observations}
 
     \begin{columns}[T]
@@ -1129,7 +1149,7 @@ to estimate LDS model parameters.
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotLogLikeSimulated1DTrajectoryDWPA]
     \frametitle{Practical: Calculation of Log-Likelihood}
 
     \begin{columns}[T]
@@ -1186,7 +1206,7 @@ $\{m_0=true\_m_0,V_0=true\_V_0,\sigma_a=2.0\times true\_\sigma_a,
     
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotMLgridSearch]
     \frametitle{Practical: Maximum-Likelihood by Grid Search}
 
     \begin{columns}[T]
@@ -1332,7 +1352,7 @@ def closure():
 	\end{enumerate}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotMLlbfgsColab]
     \frametitle{Practical: Maximum-Likelihood by a Quasi-Newton Method (L-BFGS)}
 
     \begin{columns}[T]
@@ -1486,7 +1506,7 @@ def closure():
 
 \end{frame}
 
-\section{Aeon: Naturalistic, Long-Duration and Continual Neuroscience Experimentation}
+\section{Aeon}
 
 \begin{frame}
     \frametitle{Aeon: Naturalistic, Long-Duration and Continual Neuroscience Experimentation}
@@ -1564,9 +1584,8 @@ def closure():
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]
-    \frametitle{Practical: Online Inference of 2D Kinematics of a Foraging
-    Mouse}
+\begin{frame}[fragile,label=plotOnlineKinematicsInferenceFromVideo]
+    \frametitle{Practical: Online Inference of 2D Kinematics of a Foraging Mouse}
 
     \begin{columns}[T]
         % Left Column: Practical Instructions & Colab Link
@@ -1575,19 +1594,22 @@ def closure():
         
 		\footnotesize
 
+		The link below points to code that, in a video from a mouse foraging in
+        an Aeon arena:
+
 		\begin{itemize}
 
-			\item In a video from a mouse foraging in an Aeon arena, Track its
-                center of mass using computer vision functionality.
+			\item Tracks the mouse center of mass using online computer vision
+functionality.
 
-            \item Perform \textcolor{red}{online} inference of the mouse
-                kinematics, being robust to missing center-of-mass
-                observations.
+			\item Performs online inference of the mouse kinematics.
 
-            \item Overlay in the video the inferred position of the mouse, and
-                display its speed and acceleration.
+            \item Overlays in the video the mouse inferred position, and
+                displays its speed and acceleration.
 
 		\end{itemize}
+
+		Note: the parameters of the DWPA model in the code below were selected by trial and error.
 
         \vspace{1em}
         \centering
@@ -1597,9 +1619,22 @@ def closure():
 
         % Right Column: Clean Vertically Stacked Plots
         \column{0.50\textwidth}
+		\footnotesize
+
+		Proposed activities:
+
+		\begin{enumerate}
+
+			\item Learn the model parameters by maximum likelihood.
+
+			\item Compare the likelihoods of the trial-and-error and learned parameters.
+
+			\item Check for visible differences in the performace of the models configured with the two types of parameters.
+
+		\end{enumerate}
 
         \centering
-        \includegraphics[width=0.85\linewidth]{figures/aeonOnlineKinematicsInference.png}\\[0.15em]
+        \includegraphics[width=0.60\linewidth]{figures/aeonOnlineKinematicsInference.png}\\[0.1em]
         \hfill\tiny\citet{campagnerEtAl25}
 
     \end{columns}
@@ -1692,7 +1727,7 @@ def closure():
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,label=plotStriatum]
     \frametitle{Practical: Detecting replay with LDS}
 
     \begin{columns}[T]
@@ -1820,6 +1855,30 @@ def closure():
 \end{frame}
 
 \begin{frame}
+    \frametitle{Solutions to practicals}
+
+    \begin{itemize}
+
+        \item\textbf{Sample from a DWPA model for tracking}: \hyperlink{plotSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Kalman filtering}: \hyperlink{plotBatchFilterSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotBatchFilterSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Kalman smoothing}: \hyperlink{plotBatchSmoothSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotBatchSmoothSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Forecasting}: \hyperlink{plotBatchForecastSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotBatchForecastSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Missing Observations}: \hyperlink{plotBatchMissingSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotBatchMissingSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Calculation of Log-Likelihood}: \hyperlink{plotLogLikeSimulated1DTrajectoryDWPA}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotLogLikeSimulated1DTrajectoryDWPA.ipynb}{solution}.
+
+        \item\textbf{Maximum-Likelihood by Grid Search}:\hyperlink{plotMLgridSearch}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotMLgridSearch.ipynb}{solution}.
+
+        \item\textbf{Maximum-Likelihood by a Quasi-Newton Method (L-BFGS)}:\hyperlink{plotMLlbfgsColab}{practical}, \href{https://colab.research.google.com/github/joacorapela/lds_itba_2026/blob/main/code/notebooks/solutions/plotMLlbfgsColab.ipynb}{solution}.
+
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
     \frametitle{Want to learn more?}
 
     \begin{columns}[T]
@@ -1844,12 +1903,10 @@ def closure():
 
 \end{frame}
 
-\begin{frame}
-\frametitle{References}
-\tiny{
-\bibliographystyle{apalike}
-\bibliography{machinelearning,epilepsy,stats,gaussianProcesses,eeg,latentVariableModels,linearDynamicalSystems,longDurationExperimentation,replay,tracking,signalProcessing,largeScaleRecordings}
-}
+\begin{frame}[allowframebreaks]{References}
+    \tiny
+    \bibliographystyle{apalike}
+    \bibliography{machinelearning,epilepsy,stats,gaussianProcesses,eeg,latentVariableModels,linearDynamicalSystems,longDurationExperimentation,replay,tracking,signalProcessing,largeScaleRecordings}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
